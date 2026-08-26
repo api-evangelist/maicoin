@@ -1,0 +1,25 @@
+generated: '2026-08-25'
+method: generated
+source: openapi/maicoin-max-v3-openapi.json + https://maicoin.github.io/max-websocket-docs/ + repo artifacts
+note: >-
+  Authored by API Evangelist. MaiCoin publishes no AGENTS.md or provider skills — searched
+  github.com/maicoin and the docs surface on 2026-08-25 and found none. Every operationId
+  referenced below was verified against the published contract; the WebSocket actions were
+  verified against MaiCoin's channel documentation.
+skills:
+- name: maicoin-place-and-confirm-order
+  file: maicoin-place-and-confirm-order.md
+  api: MAX Exchange REST API v3
+  description: Place a spot order and confirm it landed, using client_oid for safe retry and per-market precision rules.
+  operations: [getApiV3Markets, getApiV3Timestamp, postApiV3WalletPathWalletTypeOrder, getApiV3Order, deleteApiV3Order]
+- name: maicoin-stream-market-data
+  file: maicoin-stream-market-data.md
+  api: MAX Exchange WebSocket API
+  description: Subscribe to real-time order book, ticker, k-line, trade and market status channels, decode the abbreviated keys, and stay within the connection limits.
+  operations: [sub, unsub]
+- name: maicoin-authenticate-private-channels
+  file: maicoin-authenticate-private-channels.md
+  api: MAX Exchange WebSocket API
+  description: Authenticate to private WebSocket channels and stream own order, trade and balance events, including the signing scheme that differs from REST.
+  operations: [auth]
+skill_count: 3

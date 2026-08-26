@@ -1,0 +1,145 @@
+# generated: '2026-08-25'
+# method: generated
+# source: openapi/maicoin-max-v3-openapi.json
+# Captures API Evangelist's enhancements to MaiCoin's published contract WITHOUT mutating it.
+# Every action below adds information that the original Swagger 2.0 document omits but that
+# MaiCoin documents in prose. Applying this overlay does not change any endpoint, parameter or
+# schema — it only makes already-published facts machine-readable.
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the MAX Exchange V3 RESTful API
+  version: 1.0.0
+extends: ../openapi/maicoin-max-v3-openapi.json
+actions:
+- target: $.info
+  description: >-
+    Add the contact and licence/terms information the contract omits. Values are MaiCoin's own,
+    taken from its llms.txt (max@maicoin.com) and its published terms of use.
+  update:
+    contact:
+      name: MAX Exchange
+      email: max@maicoin.com
+      url: https://campaign.maicoin.com/en/api-document
+    termsOfService: https://assets.maicoin.com/max/MAX-Terms-of-Use.pdf
+- target: $.info
+  description: >-
+    Record the external documentation surfaces MaiCoin publishes but does not reference from the
+    contract itself.
+  update:
+    x-documentation:
+      api_reference: https://max-api.maicoin.com/doc/v3.html
+      overview: https://campaign.maicoin.com/en/api
+      websocket: https://maicoin.github.io/max-websocket-docs/
+      llms_txt: https://max-api.maicoin.com/llms.txt
+      status_endpoint: https://status-api-max.maicoin.com/api/status/max-api
+- target: $
+  description: >-
+    Declare the HMAC API-key authentication as a first-class security definition. The contract
+    currently expresses this only as three untyped header parameters repeated on 42 operations,
+    which no code generator or scorer reads as authentication. Documented by MaiCoin in prose.
+  update:
+    securityDefinitions:
+      MaxAccessKey:
+        type: apiKey
+        name: X-MAX-ACCESSKEY
+        in: header
+        description: The account Access Key issued at https://max.maicoin.com/api_tokens
+      MaxPayload:
+        type: apiKey
+        name: X-MAX-PAYLOAD
+        in: header
+        description: Base64 encoding of the JSON request parameters merged with a `path` field and a millisecond `nonce`.
+      MaxSignature:
+        type: apiKey
+        name: X-MAX-SIGNATURE
+        in: header
+        description: Hex HMAC-SHA256 of the payload string, keyed by the account Secret Key.
+- target: $
+  description: >-
+    Record the published rate limits at the document level. MaiCoin states these in its API
+    reference but the contract carries no rate-limit information at all.
+  update:
+    x-rate-limits:
+      public:
+        limit: 1200
+        window: 1 minute
+        scope: per-ip
+      private:
+        limit: 1200
+        window: 1 minute
+        scope: per-account
+      response_headers: []
+      note: No RateLimit-* or Retry-After headers are returned on REST. Verified by live probe 2026-08-25.
+- target: $
+  description: >-
+    Record the idempotency semantics of client_oid at document level so an agent can find them
+    without reading the property description on individual operations.
+  update:
+    x-idempotency:
+      key_field: client_oid
+      scope: per-account
+      retention: 24 hours
+      behaviour: reject-duplicate
+      replays_original_response: false
+      applies_to_operations:
+      - postApiV3WalletPathWalletTypeOrder
+      - deleteApiV3Order
+      note: >-
+        Order surface only. Withdrawals, transfers, loans, repayments and conversions accept no
+        client key and have no duplicate protection.
+- target: $.paths['/api/v3/withdrawal'].post
+  description: Flag the crypto withdrawal operation as irreversible so an agent escalates before calling it.
+  update:
+    x-consequence: irreversible
+    x-reversal-operation: null
+    x-agent-guidance: >-
+      One-way door. No cancel, void or recall operation exists. Requires explicit human
+      confirmation in any autonomous deployment.
+- target: $.paths['/api/v3/withdrawal/twd'].post
+  description: Flag the TWD fiat withdrawal operation as irreversible.
+  update:
+    x-consequence: irreversible
+    x-reversal-operation: null
+    x-agent-guidance: One-way door. No reversal operation is published.
+- target: $.paths['/api/v3/convert'].post
+  description: Flag currency conversion as irreversible.
+  update:
+    x-consequence: irreversible
+    x-reversal-operation: null
+    x-agent-guidance: >-
+      No cancel or reverse operation. Reversing economically requires a second conversion at the
+      then-current rate, which carries fresh market risk.
+- target: $.paths['/api/v3/wallet/{path_wallet_type}/order'].post
+  description: Record the reversal path and the asynchronous acceptance semantics for order submission.
+  update:
+    x-consequence: reversible
+    x-reversal-operation: deleteApiV3Order
+    x-reversal-window: >-
+      No stated duration. Cancellable while the order remains open; a cancel may race a partial
+      fill because matching is asynchronous.
+    x-agent-guidance: >-
+      A 200 means the request was ACCEPTED, not that the order was placed. Confirm with
+      GET /api/v3/order or a WebSocket order_update subscription before acting on the result.
+      Read base_unit_precision, quote_unit_precision, min_base_amount and min_quote_amount from
+      GET /api/v3/markets before composing volume and price.
+- target: $
+  description: >-
+    Declare the 429 response that the contract omits on every operation, despite MaiCoin
+    documenting a hard 1200/minute limit and enforcing it with an automatic IP ban.
+  update:
+    x-undeclared-responses:
+      '429':
+        description: Rate limit exceeded. Documented in prose; declared on zero operations in the contract.
+        applies_to: all operations
+      '401':
+        description: Authentication failed. Declared only on GET /api/v3/deposit_address, though all 42 private operations can return it.
+        applies_to: all private operations
+- target: $
+  description: Record the companion event surface, which the REST contract does not reference.
+  update:
+    x-event-surface:
+      protocol: websocket
+      endpoint: wss://max-stream.maicoin.com/ws
+      documentation: https://maicoin.github.io/max-websocket-docs/
+      asyncapi: ../asyncapi/maicoin-max-websocket-asyncapi.yml
+      note: The AsyncAPI document is generated by API Evangelist from MaiCoin's channel docs, not provider-published.

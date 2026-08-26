@@ -1,0 +1,158 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/maicoin-max-v3-openapi.json
+status: candidate
+note: >-
+  NO FIRST-PARTY MCP SERVER EXISTS. MaiCoin publishes none, and none was found by probe or search.
+  The tools below are a CANDIDATE surface derived from the published OpenAPI operations to show what
+  a MAX MCP server would expose; they are not implemented and not callable. No endpoint is asserted.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+discovery:
+  probes:
+  - url: https://mcp.maicoin.com/mcp
+    method: 'POST tools/list'
+    result: DNS resolution failed (curl exit 6)
+    date: '2026-08-25'
+  - url: https://max-api.maicoin.com/mcp
+    method: 'POST tools/list'
+    status: 404
+    date: '2026-08-25'
+  searches:
+  - 'GitHub repository search "maicoin mcp" — one result, narumiruna/max-mcp, a third-party community server by an individual, not MaiCoin.'
+  - 'npm registry search "maicoin" — one result, max-exchange-api-node (the official SDK). No MCP package.'
+  - 'MaiCoin''s own llms.txt at max-api.maicoin.com names the REST OpenAPI and the WebSocket docs as its machine-readable resources. It does not mention MCP.'
+third_party:
+- name: max-mcp
+  repository: https://github.com/narumiruna/max-mcp
+  official: false
+  note: >-
+    Not MaiCoin's, not linked or endorsed by MaiCoin, and therefore not an agent surface this
+    provider can be credited with. Recorded so a later round does not mistake it for first-party.
+candidate_tools:
+- name: list_markets
+  description: List all available trading markets with precision and minimum-amount rules.
+  rest: [getApiV3Markets]
+  auth: none
+- name: get_ticker
+  description: Get the current ticker for one market.
+  rest: [getApiV3Ticker]
+  auth: none
+- name: list_tickers
+  description: Get current tickers for all or selected markets.
+  rest: [getApiV3Tickers]
+  auth: none
+- name: get_order_book
+  description: Get order book depth for a market.
+  rest: [getApiV3Depth]
+  auth: none
+- name: get_klines
+  description: Get OHLC candlestick data for a market.
+  rest: [getApiV3K]
+  auth: none
+- name: list_public_trades
+  description: List recent public trades for a market.
+  rest: [getApiV3Trades]
+  auth: none
+- name: list_currencies
+  description: List supported currencies.
+  rest: [getApiV3Currencies]
+  auth: none
+- name: get_server_time
+  description: Get the server timestamp, needed to generate a valid nonce.
+  rest: [getApiV3Timestamp]
+  auth: none
+- name: get_account_info
+  description: Get the authenticated account profile and VIP level.
+  rest: [getApiV3Info]
+  auth: api-key
+- name: list_balances
+  description: List account balances for a wallet (spot or m).
+  rest: [getApiV3WalletPathWalletTypeAccounts]
+  auth: api-key
+- name: submit_order
+  description: Submit a buy or sell order.
+  rest: [postApiV3WalletPathWalletTypeOrder]
+  auth: api-key
+  consequence: write
+  reversible_by: cancel_order
+- name: cancel_order
+  description: Cancel a single open order by id or client_oid.
+  rest: [deleteApiV3Order]
+  auth: api-key
+  consequence: write
+- name: cancel_all_orders
+  description: Cancel every open order in a wallet.
+  rest: [deleteApiV3WalletPathWalletTypeOrders]
+  auth: api-key
+  consequence: write
+- name: get_order
+  description: Get one order's current state by id or client_oid.
+  rest: [getApiV3Order]
+  auth: api-key
+- name: list_open_orders
+  description: List open orders in a wallet.
+  rest: [getApiV3WalletPathWalletTypeOrdersOpen]
+  auth: api-key
+- name: list_closed_orders
+  description: List closed orders in a wallet.
+  rest: [getApiV3WalletPathWalletTypeOrdersClosed]
+  auth: api-key
+- name: list_my_trades
+  description: List the authenticated account's trade history.
+  rest: [getApiV3WalletPathWalletTypeTrades]
+  auth: api-key
+- name: list_deposits
+  description: List deposit records.
+  rest: [getApiV3Deposits]
+  auth: api-key
+- name: get_deposit_address
+  description: Get a deposit address for a currency.
+  rest: [getApiV3DepositAddress]
+  auth: api-key
+- name: list_withdrawals
+  description: List withdrawal records.
+  rest: [getApiV3Withdrawals]
+  auth: api-key
+- name: submit_withdrawal
+  description: Submit a crypto withdrawal.
+  rest: [postApiV3Withdrawal]
+  auth: api-key
+  consequence: write
+  irreversible: true
+  note: One-way door. No reversal operation exists. Should require explicit human escalation in any agent deployment.
+- name: submit_twd_withdrawal
+  description: Submit a TWD fiat withdrawal.
+  rest: [postApiV3WithdrawalTwd]
+  auth: api-key
+  consequence: write
+  irreversible: true
+- name: convert_currency
+  description: Convert one currency to another at the quoted rate.
+  rest: [postApiV3Convert]
+  auth: api-key
+  consequence: write
+  irreversible: true
+- name: submit_loan
+  description: Submit a margin loan against the m-wallet.
+  rest: [postApiV3WalletMLoan]
+  auth: api-key
+  consequence: write
+  reversible_by: submit_repayment
+- name: submit_repayment
+  description: Repay an outstanding m-wallet loan.
+  rest: [postApiV3WalletMRepayment]
+  auth: api-key
+  consequence: write
+- name: transfer_between_wallets
+  description: Transfer balance between the spot wallet and the m-wallet.
+  rest: [postApiV3WalletMTransfer]
+  auth: api-key
+  consequence: write
+  reversible_by: transfer_between_wallets
+candidate_tool_count: 26

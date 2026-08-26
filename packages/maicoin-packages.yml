@@ -1,0 +1,57 @@
+generated: '2026-08-25'
+method: searched
+source: https://github.com/maicoin + registry.npmjs.org + proxy.golang.org + the SDK section of https://max-api.maicoin.com/api/doc/external/v3
+note: >-
+  MaiCoin names exactly one official SDK in its own API reference: the Node.js client.
+  The Go SDK lives in the same GitHub org and is therefore first-party, but it has not
+  been touched since 2018 and is not referenced from the current v3 documentation.
+  Two registry packages whose names look like MaiCoin's are NOT theirs and are recorded
+  below as rejected, so a later round does not re-adopt them.
+packages:
+- name: max-exchange-api-node
+  language: JavaScript/TypeScript
+  registry: npm
+  official: true
+  url: https://www.npmjs.com/package/max-exchange-api-node
+  repository: https://github.com/maicoin/max-exchange-api-node
+  version: 3.0.2
+  published: '2025-01-21'
+  covers:
+  - MAX Exchange REST API v3
+  - MAX Exchange WebSocket API
+  note: >-
+    The only SDK MaiCoin links from its own v3 API reference ("我們提供官方 SDK" / Node.js SDK).
+    Published 2025-01-21, which post-dates the v3 API release (2024-08-30) but pre-dates the
+    2026-08-15 system-status API addition.
+- name: max-exchange-api-go
+  language: Go
+  registry: pkg.go.dev
+  official: true
+  url: https://pkg.go.dev/github.com/maicoin/max-exchange-api-go
+  repository: https://github.com/maicoin/max-exchange-api-go
+  version: v0.0.0-20180806073455-ec27bc984027
+  published: '2018-08-06'
+  covers:
+  - MAX Exchange REST API v1/v2 (superseded)
+  note: >-
+    First-party by org ownership but unmaintained — the module has never been tagged a
+    semantic version and its last commit is 2018-08-06, six years before the v3 API shipped
+    (2024-08-30). It cannot describe the current contract. MaiCoin does not link it from the
+    v3 reference. This is the strongest published decay signal on this provider.
+rejected:
+- name: max-api
+  registry: npm
+  reason: >-
+    Not MaiCoin. This is Cycling '74's placeholder package for the Max/MSP "max-api" Node
+    module (repository github.com/Cycling74/n4m-max-api). Name collision only.
+- name: maicoin
+  registry: PyPI
+  reason: >-
+    Not first-party. Published by an individual account ("narumi"), not MaiCoin, and not
+    referenced from any MaiCoin documentation. Version 0.7.0.
+- name: max-mcp
+  registry: GitHub (narumiruna/max-mcp)
+  reason: >-
+    Third-party community MCP server for the MAX API, by the same individual as the PyPI
+    package above. Not published, linked, or endorsed by MaiCoin.
+official_count: 2

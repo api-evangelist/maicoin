@@ -1,0 +1,53 @@
+generated: '2026-08-25'
+method: searched
+source: https://max-api.maicoin.com/api/doc/external/v3 (changelog) + https://status-max.maicoin.com/ + https://maicoin.github.io/max-websocket-docs/upcoming_changes.md
+versioning:
+  style: URI path
+  current: v3
+  released: '2024-08-30'
+  previous:
+  - version: v2
+    status: superseded
+    docs_still_served: true
+    docs: https://max-api.maicoin.com/doc/v2.html
+    probed_status: 200
+    retired_on: null
+status_page:
+  present: true
+  url: https://status-max.maicoin.com/
+  vendor: Site24x7 StatusIQ
+  probed_status: 200
+  machine_readable: true
+  endpoint: https://status-api-max.maicoin.com/api/status/max-api
+  endpoint_auth: none
+  endpoint_schema:
+    service: string
+    status: 'string — one of: online, maintenance'
+    last_changed_at: string (ISO 8601)
+  endpoint_note: >-
+    Added 2026-08-15 and documented in the v3 reference. A genuinely agent-useful surface: a
+    machine-readable health check an agent can poll before trading. Two caveats MaiCoin states
+    itself — status may lag up to 30 seconds, and transient outages or WebSocket drops may never
+    appear, so clients must still implement reconnection. Our own probe of this endpoint on
+    2026-08-25 was answered by a Cloudflare managed challenge (HTTP 429), so we could not confirm
+    the live payload shape; the schema above is transcribed from MaiCoin's documentation.
+deprecation_policy:
+  present: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  note: >-
+    NO published deprecation policy. MaiCoin gives no advance-notice period, no Sunset or Deprecation
+    response headers, and no end-of-life date for v2 — v2 docs are simply still served with no
+    statement of when they stop being. The v3 changelog announces additions only; it has never
+    announced a removal. An integrator has no contractual warning of a breaking change.
+sla:
+  published: false
+  note: No uptime SLA, credit scheme or support-response commitment is published for the API.
+deprecated_operations:
+  count: 0
+  note: 'Derived from openapi/maicoin-max-v3-openapi.json — no operation carries `deprecated: true`.'
+changelog:
+  present: true
+  location: embedded in the OpenAPI info.description, and a separate changelog for the WebSocket docs
+  detail: See changelog/maicoin-changelog.yml

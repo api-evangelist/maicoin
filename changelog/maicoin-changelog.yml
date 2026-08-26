@@ -1,0 +1,80 @@
+generated: '2026-08-25'
+method: searched
+source: https://max-api.maicoin.com/api/doc/external/v3 (info.description "# Changelog") + https://maicoin.github.io/max-websocket-docs/changelog.md
+scheme: dated entries, additions only
+current_version: v3
+note: >-
+  MaiCoin keeps two independent changelogs and neither is a standalone page: the REST changelog is
+  embedded inside the OpenAPI document's info.description (so it is machine-readable only as prose
+  inside the spec), and the WebSocket changelog is a markdown file in the docs repo using its own
+  semantic versions (25.x) unrelated to the REST v3 number. There is no combined feed, no RSS, and
+  no dated page an agent can subscribe to. Every REST entry to date is an addition; no removal or
+  breaking change has ever been announced.
+rest:
+  location: https://max-api.maicoin.com/api/doc/external/v3
+  entries:
+  - date: '2026-08-15'
+    version: v3
+    breaking: false
+    additions:
+    - System status API for querying the current MAX API service state.
+    highlights: 新增 系統狀態 API，用於查詢 MAX API 目前的系統服務狀態。
+  - date: '2024-11-28'
+    version: v3
+    breaking: false
+    additions:
+    - GET /api/v3/deposit_address
+    highlights: 新增 GET /api/v3/deposit_address API
+  - date: '2024-08-30'
+    version: v3
+    breaking: false
+    additions:
+    - API v3 released.
+    highlights: 新版 API v3 釋出，請參考 API v3 列表。
+websocket:
+  location: https://maicoin.github.io/max-websocket-docs/changelog.md
+  entries:
+  - date: '2024-12-02'
+    version: 25.25.0
+    breaking: false
+    additions:
+    - mwallet_fast_trade_update filter for private channels
+  - date: '2024-11-27'
+    version: 25.24.0
+    breaking: false
+    additions:
+    - fast_trade_update filter for private channels
+  - date: '2024-11-04'
+    version: 25.14.0
+    breaking: false
+    additions:
+    - WebSocket IP rate limit with 429 responses, automatic IP ban, and a Retry-After header
+  - date: '2024-10-22'
+    version: 25.12.0
+    breaking: false
+    additions:
+    - Order book version, first-id and last-id fields for verifying data continuity
+  - date: '2024-05-13'
+    version: 6.66.0
+    breaking: false
+    additions:
+    - IP connection rate limit of 1440 per day
+  - date: '2024-01-05'
+    version: 6.1.0
+    breaking: false
+    additions:
+    - Enforced message rate limits of 20 per second and 200 per minute
+  - date: '2023-12-04'
+    version: 5.120.0
+    breaking: false
+    additions:
+    - Rate-limit alerts (alert only) at 20 messages/second and 200 messages/minute
+  - date: '2021-10-06'
+    version: v3.46.1
+    breaking: false
+    additions:
+    - MWallet related channels
+upcoming:
+  published: true
+  url: https://maicoin.github.io/max-websocket-docs/upcoming_changes.md
+  note: 'The page exists but is empty apart from its heading ("## Upcomping Changes") as of 2026-08-25 — no forthcoming changes are announced. Not treated as a roadmap.'

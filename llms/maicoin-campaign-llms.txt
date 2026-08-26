@@ -1,0 +1,130 @@
+# MAX Digital Asset Exchange (MaiCoin Group)
+> Premium digital asset exchange in Taiwan, providing secure, compliant, and efficient cryptocurrency trading services.
+
+## MAX Margin Borrowing (MAX 借滿益 - Traditional Chinese)
+- [MAX 借滿益主頁](https://campaign.maicoin.com/borrowing): 借滿益服務首頁，提供看漲或看跌等多樣化槓桿交易與借幣功能。
+- [關於借滿益](https://campaign.maicoin.com/borrowing-about): 詳細介紹借滿益的運作機制、資產管理與操作流程。
+- [什麼是借滿益](https://campaign.maicoin.com/borrowing-what): 針對初學者的觀念普及，解釋虛擬貨幣借貸與交易的核心概念。
+- [借滿益申請資格](https://campaign.maicoin.com/borrowing-eligibility): 列出帳戶級別（Lv.1 或 Lv.2）限制、風控審核及申辦借滿益必備的條件。
+
+## MAX Margin Borrowing (English)
+- [MAX Borrowing Home](https://campaign.maicoin.com/en/borrowing): Main landing page for MAX crypto borrowing and leverage trading services.
+- [About Borrowing](https://campaign.maicoin.com/en/borrowing-about): In-depth information regarding the borrowing mechanisms and financial structures.
+- [What is Borrowing](https://campaign.maicoin.com/en/borrowing-what): Conceptual guide explaining digital asset lending and margin concepts for users.
+- [Borrowing Eligibility](https://campaign.maicoin.com/en/borrowing-eligibility): Operational requirements, verification levels, and risk control criteria for borrowing.
+
+## Automated Trading Bots (交易機器人)
+- [MAX 網格交易](https://campaign.maicoin.com/grid-trading): 網格交易機器人（Grid Trading Bot）介紹，支援自動低買高賣，適合震盪行情之策略交易。
+- [MAX DCA 機器人](https://campaign.maicoin.com/dca-trading): 定期定額（DCA）自動投機器人，協助用戶分散市場波動風險，實踐長期資產配置。
+
+## Ecosystem & VIP Programs (生態系與權益)
+- [MAX Token](https://campaign.maicoin.com/max-token): MAX 交易所平台幣介紹，涵蓋折抵交易與提領手續費、鎖倉獎勵等核心生態權益。
+- [MAX VIP 計畫 (繁中)](https://campaign.maicoin.com/vip): 介紹 VIP 手續費階梯、大戶專屬優惠、做市商計畫及跨平台 VIP 直升方案。
+- [MAX VIP Program (English)](https://campaign.maicoin.com/en/vip): Details on VIP fee tiers, maker/taker discounts, and institutional market maker benefits.
+- [推薦計畫 (繁中)](https://campaign.maicoin.com/referral-program): MAX 推薦好友返佣計畫，分享推薦碼賺取高額手續費返利及折抵。
+- [Referral Program (English)](https://campaign.maicoin.com/en/referral-program): Invite friends to trade on MAX and earn competitive commission rebates and trading discounts.
+
+## Developer & API Solutions (開發者解決方案)
+- [MAX API 簡介 (繁中)](https://campaign.maicoin.com/api): 提供 HTTP 網頁與 WebSocket 串流 API 解決方案，支援開源 SDK 整合。
+- [MAX API Overview (English)](https://campaign.maicoin.com/en/api): Professional programmatic trading solutions featuring low-latency HTTP/WebSocket endpoints.
+- [MAX API 技術文件 (繁中)](https://campaign.maicoin.com/api-document): 詳盡的 API 參數說明、調用規範、錯誤代碼與開源程式庫範態。
+- [MAX API Documentation (English)](https://campaign.maicoin.com/en/api-document): Developer specifications for technical implementation, authentication, and endpoint testing.
+
+## Staking Services (MAX 鎖倉賺幣 - Traditional Chinese)
+- [Solana (SOL) 鎖倉](https://campaign.maicoin.com/stake-sol): 鎖定 SOL 參與鏈上質押，穩定賺取數位資產收益。
+- [Polygon (MATIC) 鎖倉](https://campaign.maicoin.com/stake-matic): 鎖定 MATIC 資產，安全賺取網路驗證節點獎勵。
+- [Ethereum (ETH) 鎖倉](https://campaign.maicoin.com/stake-eth): 參與以太坊 2.0 質押，獲取去中心化網路收益分潤。
+- [Polkadot (DOT) 鎖倉](https://campaign.maicoin.com/stake-dot): 鎖定 DOT 代幣參與波卡網路共識獲取獎勵。
+- [Avalanche (AVAX) 鎖倉](https://campaign.maicoin.com/stake-avax): 將 AVAX 資產投入鎖倉賺幣，靈活累積被動收入。
+- [TRON (TRX) 鎖倉](https://campaign.maicoin.com/stake-trx): 鎖定 TRX 賺取波場網路收益，兼具資產合規安全。
+- [Cardano (ADA) 鎖倉](https://campaign.maicoin.com/stake-ada): 鎖定 ADA 代幣，輕鬆參與 Cardano 節點獎勵分配。
+
+## Staking Services (English)
+- [Solana (SOL) Staking](https://campaign.maicoin.com/en/stake-sol): Stake SOL tokens securely to earn on-chain validation rewards.
+- [Polygon (MATIC) Staking](https://campaign.maicoin.com/en/stake-matic): Lock MATIC to participate in network consensus and generate yield.
+- [Ethereum (ETH) Staking](https://campaign.maicoin.com/en/stake-eth): Participate in Ethereum network staking to gain cryptographic returns.
+- [Polkadot (DOT) Staking](https://campaign.maicoin.com/en/stake-dot): Secure DOT staking opportunities for consistent blockchain rewards.
+- [Avalanche (AVAX) Staking](https://campaign.maicoin.com/en/stake-avax): Allocate AVAX assets to generate passive cryptocurrency rewards.
+- [TRON (TRX) Staking](https://campaign.maicoin.com/en/stake-trx): Access compliant TRON network staking services for regular asset growth.
+- [Cardano (ADA) Staking](https://campaign.maicoin.com/en/stake-ada): Commit ADA assets into the staking pool for network incentive payouts.
+
+## Crypto Prices & Market Overview (加密貨幣即時價格 - 繁中)
+- [加密貨幣價格總覽](https://campaign.maicoin.com/price-overview): 即時追蹤各大熱門加密貨幣價格、漲跌幅與市場走勢。
+- [MAX Token (MAX) 價格](https://campaign.maicoin.com/price/max-token): 即時查看 MAX 平台幣價格行情與歷史數據。
+- [比特幣 (BTC) 價格](https://campaign.maicoin.com/price/bitcoin): 比特幣即時匯率、交易量與市值走勢分析。
+- [以太幣 (ETH) 價格](https://campaign.maicoin.com/price/ethereum): 以太坊（ETH）即時價格與市場行情。
+- [泰達幣 (USDT) 價格](https://campaign.maicoin.com/price/tether): USDT 美元穩定幣即時匯率與流動性資訊。
+- [瑞波幣 (XRP) 價格](https://campaign.maicoin.com/price/xrp): 瑞波幣即時價格走勢與市場動態。
+- [幣安幣 (BNB) 價格](https://campaign.maicoin.com/price/bnb): 幣安幣（BNB）即時行情與價格圖表。
+- [Solana (SOL) 價格](https://campaign.maicoin.com/price/solana): SOL 即時價格走勢與市場數據。
+- [USDC 價格](https://campaign.maicoin.com/price/usdc): USD Coin 合規美元穩定幣即時匯率。
+- [波場幣 (TRX) 價格](https://campaign.maicoin.com/price/tron): TRX 即時行情與報價。
+- [狗狗幣 (DOGE) 價格](https://campaign.maicoin.com/price/dogecoin): Dogecoin 即時價格與迷因幣市場動態。
+- [Cardano (ADA) 價格](https://campaign.maicoin.com/price/cardano): 艾達幣（ADA）即時價格與歷史行情。
+- [Chainlink (LINK) 價格](https://campaign.maicoin.com/price/chainlink): LINK 即時價格與去中心化預言機項目資訊。
+- [比特幣現金 (BCH) 價格](https://campaign.maicoin.com/price/bitcoin-cash): 比特幣現金 BCH 即時走勢與價格數據。
+- [Sui (SUI) 價格](https://campaign.maicoin.com/price/sui): SUI 公鏈代幣即時行情與價格分析。
+- [Avalanche (AVAX) 價格](https://campaign.maicoin.com/price/avalanche): AVAX 即時價格與雪崩協態市場走勢。
+- [萊特幣 (LTC) 價格](https://campaign.maicoin.com/price/litecoin): 萊特幣即時價格與交易數據。
+- [柴犬幣 (SHIB) 價格](https://campaign.maicoin.com/price/shiba-inu): Shiba Inu 柴犬幣即時價格與市場走勢。
+- [Tether Gold (XAUt) 價格](https://campaign.maicoin.com/price/tether-gold): XAUt 黃金代幣即時報價與資產追蹤。
+- [波卡幣 (DOT) 價格](https://campaign.maicoin.com/price/polkadot): Polkadot (DOT) 即時價格與跨鏈生態動態。
+- [PAX Gold (PAXG) 價格](https://campaign.maicoin.com/price/pax-gold): PAXG 實體黃金代幣即時價格行情。
+- [以太經典 (ETC) 價格](https://campaign.maicoin.com/price/ethereum-classic): 以太經典 ETC 即時價格走勢。
+- [Polygon (MATIC) 價格](https://campaign.maicoin.com/price/polygon): Polygon (MATIC) 即時行情與 Layer 2 走勢。
+- [Arbitrum (ARB) 價格](https://campaign.maicoin.com/price/arbitrum): Arbitrum (ARB) 即時報價與生態數據。
+- [The Graph (GRT) 價格](https://campaign.maicoin.com/price/the-graph): GRT 即時價格與數據索引協議資訊。
+- [Tezos (XTZ) 價格](https://campaign.maicoin.com/price/tezos): XTZ 即時價格走勢。
+- [ENS 價格](https://campaign.maicoin.com/price/ethereum-name-service): Ethereum Name Service (ENS) 即時價格行情。
+- [The Sandbox (SAND) 價格](https://campaign.maicoin.com/price/the-sandbox): SAND 元宇宙代幣即時價格與趨勢。
+- [GALA 價格](https://campaign.maicoin.com/price/gala): GALA 鏈遊代幣即時價格數據。
+- [Decentraland (MANA) 價格](https://campaign.maicoin.com/price/decentraland): MANA 虛擬世界代幣即時行情。
+- [ApeCoin (APE) 價格](https://campaign.maicoin.com/price/apecoin): APE 即時價格與生態發展動態。
+- [Compound (COMP) 價格](https://campaign.maicoin.com/price/compound): COMP DeFi 治理代幣即時行情。
+- [yearn.finance (YFI) 價格](https://campaign.maicoin.com/price/yearn-finance): YFI 收益聚合器代幣即時價格。
+- [STEPN (GMT) 價格](https://campaign.maicoin.com/price/gmt): GMT Move-to-Earn 代幣即時價格。
+- [My Neighbor Alice (ALICE) 價格](https://campaign.maicoin.com/price/my-neighbor-alice): ALICE 鏈遊代幣即時報價。
+- [Green Satoshi Token (GST) 價格](https://campaign.maicoin.com/price/green-satoshi-token): GST 即時價格與遊戲內代幣動態。
+
+## Crypto Prices & Market Overview (English)
+- [Crypto Price Overview](https://campaign.maicoin.com/en/price-overview): Live cryptocurrency market prices, percentage changes, and market trends.
+- [MAX Token (MAX) Price](https://campaign.maicoin.com/en/price-en/max-token): Real-time MAX exchange token price and historical market data.
+- [Bitcoin (BTC) Price](https://campaign.maicoin.com/en/price-en/bitcoin): Live Bitcoin price updates, trading volume, and market capitalization analysis.
+- [Ethereum (ETH) Price](https://campaign.maicoin.com/en/price-en/ethereum): Real-time ETH market pricing and interactive charts.
+- [Tether (USDT) Price](https://campaign.maicoin.com/en/price-en/tether): Live USDT stablecoin price and liquidity metrics.
+- [XRP (XRP) Price](https://campaign.maicoin.com/en/price-en/xrp): Real-time Ripple (XRP) token price and market performance.
+- [BNB (BNB) Price](https://campaign.maicoin.com/en/price-en/bnb): Live BNB price trends and market updates.
+- [Solana (SOL) Price](https://campaign.maicoin.com/en/price-en/solana): Real-time Solana token price and ecosystem trends.
+- [USDC Price](https://campaign.maicoin.com/en/price-en/usdc): Live USD Coin price and regulatory compliance details.
+- [TRON (TRX) Price](https://campaign.maicoin.com/en/price-en/tron): Real-time TRON token price and network data.
+- [Dogecoin (DOGE) Price](https://campaign.maicoin.com/en/price-en/dogecoin): Live Dogecoin price and meme token market analysis.
+- [Cardano (ADA) Price](https://campaign.maicoin.com/en/price-en/cardano): Real-time ADA price chart and historical data.
+- [Chainlink (LINK) Price](https://campaign.maicoin.com/en/price-en/chainlink): Live LINK price and decentralized oracle performance.
+- [Bitcoin Cash (BCH) Price](https://campaign.maicoin.com/en/price-en/bitcoin-cash): Real-time BCH price metrics and charts.
+- [Sui (SUI) Price](https://campaign.maicoin.com/en/price-en/sui): Live SUI blockchain token price and analysis.
+- [Avalanche (AVAX) Price](https://campaign.maicoin.com/en/price-en/avalanche): Real-time AVAX price trends and network data.
+- [Litecoin (LTC) Price](https://campaign.maicoin.com/en/price-en/litecoin): Live Litecoin price updates and market trends.
+- [Shiba Inu (SHIB) Price](https://campaign.maicoin.com/en/price-en/shiba-inu): Real-time SHIB token price and trading metrics.
+- [Tether Gold (XAUt) Price](https://campaign.maicoin.com/en/price-en/tether-gold): Live XAUt gold-backed token pricing.
+- [Polkadot (DOT) Price](https://campaign.maicoin.com/en/price-en/polkadot): Real-time DOT token price and cross-chain metrics.
+- [PAX Gold (PAXG) Price](https://campaign.maicoin.com/en/price-en/pax-gold): Live PAXG physical gold token price updates.
+- [Ethereum Classic (ETC) Price](https://campaign.maicoin.com/en/price-en/ethereum-classic): Real-time ETC price and market analysis.
+- [Polygon (MATIC) Price](https://campaign.maicoin.com/en/price-en/polygon): Live MATIC Layer 2 token price and data.
+- [Arbitrum (ARB) Price](https://campaign.maicoin.com/en/price-en/arbitrum): Real-time ARB token price and ecosystem statistics.
+- [The Graph (GRT) Price](https://campaign.maicoin.com/en/price-en/the-graph): Live GRT data indexing protocol token price.
+- [Tezos (XTZ) Price](https://campaign.maicoin.com/en/price-en/tezos): Real-time XTZ price and network statistics.
+- [Ethereum Name Service (ENS) Price](https://campaign.maicoin.com/en/price-en/ethereum-name-service): Live ENS domain token price updates.
+- [The Sandbox (SAND) Price](https://campaign.maicoin.com/en/price-en/the-sandbox): Real-time SAND metaverse token price.
+- [GALA Price](https://campaign.maicoin.com/en/price-en/gala): Live GALA gaming token price and performance.
+- [Decentraland (MANA) Price](https://campaign.maicoin.com/en/price-en/decentraland): Real-time MANA virtual land token price.
+- [ApeCoin (APE) Price](https://campaign.maicoin.com/en/price-en/apecoin): Live APE token price and ecosystem updates.
+- [Compound (COMP) Price](https://campaign.maicoin.com/en/price-en/compound): Real-time COMP DeFi protocol token price.
+- [yearn.finance (YFI) Price](https://campaign.maicoin.com/en/price-en/yearn-finance): Live YFI yield aggregator token pricing.
+- [STEPN (GMT) Price](https://campaign.maicoin.com/en/price-en/gmt): Real-time GMT move-to-earn token price metrics.
+- [My Neighbor Alice (ALICE) Price](https://campaign.maicoin.com/en/price-en/my-neighbor-alice): Live ALICE gaming token price charts.
+- [Green Satoshi Token (GST) Price](https://campaign.maicoin.com/en/price-en/green-satoshi-token): Real-time GST in-game utility token price.
+
+## Campaigns & Co-Branded Events (活動與跨界聯名)
+- [凱基銀行信用卡活動](https://campaign.maicoin.com/kgicard): 幣享卡專屬聯名活動，消費點數可兌換比特幣、乙太幣或泰達幣等多種虛擬貨幣。
+- [好好證劵聯名活動](https://campaign.maicoin.com/fundswap): Fundswap 限時跨界活動，提供新開戶認證、證券申購手續費折抵及 Mo 幣等多重好禮。
+- [MAX 2026 交易競賽](https://campaign.maicoin.com/2026-trading-competition): 2026 年度大型交易競賽活動，劃分市民組（機器人）、菁英組（API 交易）等多元賽道與高額獎金。

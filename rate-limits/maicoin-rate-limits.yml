@@ -1,0 +1,90 @@
+generated: '2026-08-25'
+method: searched
+source: https://max-api.maicoin.com/api/doc/external/v3 (info.description, "API 類別" table) + https://maicoin.github.io/max-websocket-docs/ (README + changelog) + live header probe of https://max-api.maicoin.com/api/v3/markets
+docs: https://campaign.maicoin.com/en/api-document
+limit_count: 6
+note: >-
+  MaiCoin publishes hard numbers for both the REST and the WebSocket surface, but ships NO
+  rate-limit response headers on REST. A live unauthenticated probe of GET /api/v3/markets on
+  2026-08-25 returned date, server, cache-control, x-request-id, x-runtime, strict-transport-security
+  and cf-* headers, and no RateLimit-*, X-RateLimit-* or Retry-After header. An agent therefore
+  cannot read remaining quota at runtime on REST; it can only count its own requests against the
+  documented ceiling. The WebSocket surface is better: a 429 there carries Retry-After.
+rate_limits:
+- scope: per-ip
+  surface: REST public API
+  limit: 1200
+  window: 1 minute
+  burst: null
+  headers: []
+  status_on_exhaustion: null
+  evidence: 'MAX V3 API reference, API 類別 table: "公開 API | 無需驗證 | 每個 IP 地址 1 分鐘最多 1200 請求"'
+- scope: per-account
+  surface: REST private API
+  limit: 1200
+  window: 1 minute
+  burst: null
+  headers: []
+  status_on_exhaustion: null
+  evidence: 'MAX V3 API reference, API 類別 table: "私人 API | 需要驗證 | 每個帳號每分鐘內最多 1200 個請求"'
+- scope: per-connection
+  surface: WebSocket request messages
+  limit: 20
+  window: 1 second
+  burst: null
+  headers: []
+  status_on_exhaustion: null
+  evidence: 'WebSocket docs README: "rate limit when your request message over 20 per second" (introduced 6.1.0, 2024-01-05)'
+- scope: per-connection
+  surface: WebSocket request messages
+  limit: 200
+  window: 1 minute
+  burst: null
+  headers: []
+  status_on_exhaustion: null
+  evidence: 'WebSocket docs README: "rate limit when your request message over 200 per minute"'
+- scope: per-ip
+  surface: WebSocket connections
+  limit: 600
+  window: 1 hour
+  burst: null
+  headers:
+  - Retry-After
+  status_on_exhaustion: 429
+  evidence: 'WebSocket docs README: "rate limit when your ip connection over 600 per hour"'
+- scope: per-ip
+  surface: WebSocket connections
+  limit: 1440
+  window: 1 day
+  burst: null
+  headers:
+  - Retry-After
+  status_on_exhaustion: 429
+  evidence: 'WebSocket docs changelog 6.66.0 (2024-05-13): "rate limit when your ip connection over 1440 per day"'
+response_headers:
+  rest:
+    rate_limit_headers: []
+    note: >-
+      None served. Verified by live probe 2026-08-25 against GET https://max-api.maicoin.com/api/v3/markets.
+    observed_other:
+    - x-request-id
+    - x-runtime
+    - strict-transport-security
+  websocket:
+    rate_limit_headers:
+    - Retry-After
+    note: >-
+      Per the WebSocket docs: "A Retry-After header is included in 429 responses, indicating the
+      Unix timestamp in seconds for when you can reconnect." Note this is a Unix timestamp, not the
+      delta-seconds form RFC 9110 defines for Retry-After — a client implementing the RFC literally
+      would sleep for ~1.7 billion seconds. Deviation recorded in conformance/maicoin-conformance.yml.
+enforcement:
+  penalty: >-
+    "Receiving a 429 response will result in an automatic IP ban." Violations carry a penalty period
+    that must be waited out in full; requesting during the penalty resets and prolongs the ban.
+  source: https://maicoin.github.io/max-websocket-docs/
+tier_variation:
+  documented: false
+  note: >-
+    The VIP0-VIP9 programme (see plans/) changes maker/taker FEES only. MaiCoin's VIP page
+    publishes no per-tier API rate-limit differences, and none were found elsewhere.

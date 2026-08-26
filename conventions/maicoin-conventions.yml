@@ -1,0 +1,182 @@
+generated: '2026-08-25'
+method: searched
+source: https://max-api.maicoin.com/api/doc/external/v3 + https://maicoin.github.io/max-websocket-docs/ + derived from openapi/maicoin-max-v3-openapi.json + live header probe 2026-08-25
+docs: https://campaign.maicoin.com/en/api-document
+auth:
+  style: HMAC-signed API key in request headers
+  detail: See authentication/maicoin-authentication.yml
+idempotency:
+  supported: true
+  mechanism: client-supplied unique key (deduplication)
+  key_field: client_oid
+  transport: request body on POST, query parameter on GET lookups
+  scope: per account
+  retention: 24 hours
+  max_length: 36
+  behaviour: reject-duplicate
+  replays_original_response: false
+  applies_to:
+  - postApiV3WalletPathWalletTypeOrder
+  - deleteApiV3Order
+  - getApiV3Order
+  - getApiV3OrderTrades
+  evidence: >-
+    MAX V3 contract, client_oid property: "user specific order id. maximum length of client_oid
+    must less or equal to 36. persistence, server will validate uniqueness within 24 hours only",
+    and on GET /api/v3/order: "Reusing a client_oid within 24 hours will be rejected."
+  note: >-
+    READ THIS BEFORE TREATING IT AS AN IDEMPOTENCY KEY. client_oid gives an agent safe retry of
+    order SUBMISSION — a duplicate submit inside 24 hours is rejected rather than filled twice,
+    which is the property that matters when a network timeout leaves the caller unsure whether an
+    order landed. But it is deduplication, NOT RFC-style idempotency: MaiCoin does not document
+    replaying the original response body on a repeat call, so a retrying client gets a rejection,
+    not the original order. The correct recovery is to catch the rejection and then GET
+    /api/v3/order?client_oid=<key> to read the authoritative state. It is also scoped to orders
+    only — withdrawals (postApiV3Withdrawal, postApiV3WithdrawalTwd), transfers, loans, repayments
+    and conversions accept no client key and have no documented duplicate protection at all, which
+    makes retry on those endpoints genuinely unsafe.
+pagination:
+  style: page/limit with cursor variant
+  params:
+  - name: limit
+    used_by_operations: 22
+  - name: offset
+  - name: page
+    note: Not present in the v3 contract; v2 used it.
+  - name: from_id
+    note: Cursor-style, used on trade/order history endpoints.
+  - name: order_by
+    note: Sort direction on listing endpoints.
+  - name: timestamp
+    used_by_operations: 19
+    note: Time-anchored windowing, paired with start_time/end_time on some endpoints.
+  response_envelope: bare JSON array
+  total_count_field: null
+  note: >-
+    List endpoints return a bare JSON array with no wrapper, so there is no total count, no
+    next-page token and no has_more flag. A client cannot tell a full last page from a full
+    middle page except by requesting again. Verified against the live GET /api/v3/markets response.
+field_expansion:
+  supported: false
+sparse_fieldsets:
+  supported: false
+metadata:
+  supported: false
+  note: No user-defined metadata field on any resource. client_oid is the only client-controlled identifier.
+request_id_tracing:
+  supported: true
+  header: x-request-id
+  direction: response
+  format: '1-<hex>-<hex>'
+  evidence: 'Live probe 2026-08-25, GET https://max-api.maicoin.com/api/v3/markets returned x-request-id: 1-6a8e3c86-4bdb7690238ac38e28204109'
+  note: >-
+    Server-generated and returned on every response, but NOT documented anywhere in MaiCoin's docs
+    and not accepted as a request header. It is usable for support correspondence; it cannot be
+    supplied by the client to correlate a retry.
+  also_returned:
+  - x-runtime
+versioning:
+  style: URI path
+  current: v3
+  pattern: /api/v{n}/
+  released: '2024-08-30'
+  previous:
+  - version: v2
+    status: superseded
+    docs: https://max-api.maicoin.com/doc/v2.html
+    note: v2 documentation is still served (HTTP 200 on 2026-08-25) and the v3 changelog links its changelog.
+  websocket_versioning:
+    style: independent semver on the docs/service, not in the URL
+    note: 'The WebSocket endpoint is unversioned (wss://max-stream.maicoin.com/ws) while its changelog uses versions like 25.25.0 — an agent cannot pin a WebSocket contract version.'
+error_envelope:
+  rest: '{"success": false, "error": {"code": <int>, "message": "<string>", "info": {}}}'
+  websocket: '{"e": "error", "E": ["E-<code>: <message>"], "i": "<client id>", "T": <ms>}'
+  detail: See errors/maicoin-problem-types.yml and errors/maicoin-error-codes.yml
+rate_limit_signaling:
+  rest_headers: []
+  websocket_headers:
+  - Retry-After
+  detail: See rate-limits/maicoin-rate-limits.yml
+data_types:
+  money_and_quantities: string
+  note: >-
+    "price and volume should be string" — MAX transports all monetary and quantity values as
+    decimal strings to avoid float error, and timestamps/depth as numbers. Precision is per-market
+    and must be read from GET /api/v3/markets (base_unit_precision, quote_unit_precision,
+    min_base_amount, min_quote_amount) before composing an order.
+  timestamps: Unix epoch milliseconds (integer)
+websocket_key_abbreviation:
+  used: true
+  note: >-
+    The WebSocket protocol abbreviates every field name to one or two characters (e=event, c=channel,
+    M=market, p=price, v=volume, sd=side, rv=remaining_volume, ev=executed_volume, ...) "to reduce
+    response size". The full mapping table is published in the WebSocket README. This is a real
+    agent-readability cost: no message is self-describing, and the alias table is prose in a
+    markdown file rather than a schema.
+  alias_table: https://maicoin.github.io/max-websocket-docs/
+async_semantics:
+  note: >-
+    Order creation and cancellation are ASYNCHRONOUS. A 200 means the request was accepted, not that
+    the order was placed or cancelled. MaiCoin explicitly instructs clients to confirm via
+    GET /api/v3/order or a WebSocket order_update subscription, and warns that a cancelled order may
+    still have unfilled trades in flight and that status updates can lag under load.
+  source: MAX V3 API reference, "訂單操作說明"
+dry_run_mode:
+  supported: false
+  grade: na
+  note: No test/simulation mode, no sandbox environment, no test-mode key prefix. An agent cannot rehearse a write against MAX.
+reversibility:
+  grade: documented
+  note: >-
+    MAX has real write surfaces and a genuine reversal path for the trading surface, but publishes
+    no time window for it, so this grades `documented` rather than `verified`. The distinction is
+    material here: the reversible surface (orders) and the irreversible surface (withdrawals,
+    conversions) sit side by side in the same API with no signal separating them.
+  write_surfaces:
+  - operation: postApiV3WalletPathWalletTypeOrder
+    action: submit a sell/buy order
+    reversal_operation: deleteApiV3Order
+    reversal_name: cancel an order
+    window_stated: false
+    window: >-
+      Not stated as a duration. An order can be cancelled while it remains open; once filled it
+      cannot. Because matching is asynchronous, MaiCoin warns a cancel may race a partial fill —
+      "在進行取消訂單操作時，該訂單可能仍有未完成的成交". There is no published deadline, only a state condition.
+    source: https://max-api.maicoin.com/api/doc/external/v3
+  - operation: postApiV3WalletPathWalletTypeOrder
+    action: submit orders (bulk)
+    reversal_operation: deleteApiV3WalletPathWalletTypeOrders
+    reversal_name: cancel all orders
+    window_stated: false
+    window: Same state condition as single cancel; applies to all open orders in the wallet.
+    source: https://max-api.maicoin.com/api/doc/external/v3
+  - operation: postApiV3WalletMLoan
+    action: submit a margin loan
+    reversal_operation: postApiV3WalletMRepayment
+    reversal_name: submit repayment
+    window_stated: false
+    window: >-
+      Repayment settles the debt rather than voiding the loan — interest already accrued is not
+      reversed. Not a true undo; recorded as the closest available compensating action.
+    source: https://max-api.maicoin.com/api/doc/external/v3
+  - operation: postApiV3WalletMTransfer
+    action: spot wallet <-> m-wallet transfer
+    reversal_operation: postApiV3WalletMTransfer
+    reversal_name: transfer back in the opposite direction
+    window_stated: false
+    window: Compensating transfer, available while the balance remains unlocked.
+    source: https://max-api.maicoin.com/api/doc/external/v3
+  irreversible:
+  - operation: postApiV3Withdrawal
+    action: crypto withdrawal
+    note: >-
+      NO reversal operation exists and none is documented. An on-chain withdrawal is final once
+      broadcast. An agent must treat this as a one-way door.
+  - operation: postApiV3WithdrawalTwd
+    action: TWD fiat withdrawal
+    note: No reversal, void or recall operation is published.
+  - operation: postApiV3Convert
+    action: currency conversion
+    note: >-
+      No cancel or reverse operation. GET /api/v3/convert reads status only. Reversing economically
+      requires a second conversion at the then-current rate, which is not the same thing.

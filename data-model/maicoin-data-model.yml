@@ -1,0 +1,191 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/maicoin-max-v3-openapi.json (51 definitions, $ref graph and id-reference fields)
+note: >-
+  Derived from the published contract. The MAX data model is shallow by design — it is a trading
+  API, so most definitions are flat read models rather than a linked object graph. Only a handful
+  of genuine foreign keys exist, and they are expressed as bare integer/string id fields rather
+  than $ref links, so the relationships below were read from field names and their documented
+  descriptions, not from schema composition.
+identifiers:
+  order_id:
+    field: id
+    type: integer
+    note: Server-assigned order identifier.
+  client_order_id:
+    field: client_oid
+    type: string
+    max_length: 36
+    note: Client-assigned, unique per account for 24 hours. See conventions/ idempotency.
+  group_order_id:
+    field: group_id
+    type: integer
+    note: Groups related orders; nullable.
+  trade_id:
+    field: id
+    type: integer
+  serial_number:
+    field: sn
+    type: string
+    note: Used to address deposits, withdrawals and fund transactions.
+  market_id:
+    field: market
+    type: string
+    note: Lowercase concatenation of base and quote unit, e.g. btctwd. Enumerated in the contract (77 markets).
+  currency_id:
+    field: currency
+    type: string
+    note: Lowercase currency code, e.g. btc, twd, usdt.
+entities:
+- name: Market
+  schema: External_V3_Entities_Market
+  key: id
+  fields: [id, name, market_status, base_unit, base_unit_precision, min_base_amount, quote_unit, quote_unit_precision, min_quote_amount, m_wallet_supported]
+  read_by: [getApiV3Markets]
+  note: The precision and minimum-amount fields are mandatory reading before composing an order.
+- name: Currency
+  schema: External_V3_Entities_Currency
+  read_by: [getApiV3Currencies]
+- name: Ticker
+  schema: External_V3_Entities_Ticker
+  read_by: [getApiV3Tickers, getApiV3Ticker]
+- name: PublicTrade
+  schema: External_V3_Entities_PublicTrade
+  read_by: [getApiV3Trades]
+- name: Order
+  schema: External_V3_Entities_Order
+  key: id
+  alternate_key: client_oid
+  fields: [id, client_oid, group_id, side, ord_type, price, stop_price, avg_price, volume, remaining_volume, executed_volume, state, market, trade_count, created_at, updated_at]
+  written_by: [postApiV3WalletPathWalletTypeOrder]
+  read_by: [getApiV3Order, getApiV3WalletPathWalletTypeOrdersOpen, getApiV3WalletPathWalletTypeOrdersClosed, getApiV3WalletPathWalletTypeOrdersHistory]
+  deleted_by: [deleteApiV3Order, deleteApiV3WalletPathWalletTypeOrders]
+- name: Trade
+  schema: External_V3_Entities_Trade
+  key: id
+  read_by: [getApiV3WalletPathWalletTypeTrades, getApiV3OrderTrades]
+- name: Account
+  schema: External_V3_Entities_Account
+  key: currency
+  fields: [currency, balance, locked, staked]
+  read_by: [getApiV3WalletPathWalletTypeAccounts]
+- name: Info
+  schema: External_V3_Entities_Info
+  read_by: [getApiV3Info]
+  note: Authenticated account profile, including the VIP level.
+- name: VipLevel
+  schema: External_V3_Entities_VipLevel
+  note: Embedded in Info; carries the maker/taker fee rates that plans/ documents.
+- name: Deposit
+  schema: External_V3_Entities_Deposit
+  key: sn
+  read_by: [getApiV3Deposit, getApiV3Deposits]
+- name: Withdrawal
+  schema: External_V3_Entities_Withdrawal
+  key: sn
+  written_by: [postApiV3Withdrawal, postApiV3WithdrawalTwd]
+  read_by: [getApiV3Withdrawal, getApiV3Withdrawals]
+- name: FundSource
+  schema: External_V3_Entities_FundSource
+  read_by: [getApiV3WithdrawAddresses]
+- name: PaymentAddress
+  schema: B2b_V2_Entities_PaymentAddress
+  read_by: [getApiV3DepositAddress]
+- name: ConvertOrder
+  schema: External_V3_Entities_ConvertOrder
+  written_by: [postApiV3Convert]
+  read_by: [getApiV3Convert, getApiV3Converts]
+- name: Debt
+  schema: External_V3_Entities_Debt
+  written_by: [postApiV3WalletMLoan]
+  read_by: [getApiV3WalletMLoans]
+- name: Repayment
+  schema: External_V3_Entities_Repayment
+  written_by: [postApiV3WalletMRepayment]
+  read_by: [getApiV3WalletMRepayments]
+- name: Interest
+  schema: External_V3_Entities_Interest
+  read_by: [getApiV3WalletMInterests]
+- name: Liquidation
+  schema: External_V3_Entities_Liquidation
+  read_by: [getApiV3WalletMLiquidations, getApiV3WalletMLiquidation]
+- name: LiquidationDetail
+  schema: External_V3_Entities_LiquidationDetail
+- name: ForcedLiquidation
+  schema: External_V3_Entities_ForcedLiquidation
+- name: AdRatio
+  schema: External_V3_Entities_AdRatio
+  read_by: [getApiV3WalletMAdRatio]
+- name: BorrowingTransfer
+  schema: External_V3_Entities_BorrowingTransfer
+  written_by: [postApiV3WalletMTransfer]
+  read_by: [getApiV3WalletMTransfers]
+- name: HistoricalIndexPrice
+  schema: External_V3_Entities_HistoricalIndexPrice
+  read_by: [getApiV3WalletMHistoricalIndexPrices]
+- name: Staking
+  schema: External_V3_Entities_Staking
+relationships:
+- from: Order
+  to: Market
+  type: belongs_to
+  via: market
+- from: Order
+  to: Trade
+  type: has_many
+  via: trade_count / getApiV3OrderTrades
+- from: Trade
+  to: Order
+  type: belongs_to
+  via: order_id (abbreviated `oi` on the WebSocket surface)
+- from: Trade
+  to: Market
+  type: belongs_to
+  via: market
+- from: Account
+  to: Currency
+  type: belongs_to
+  via: currency
+- from: Info
+  to: VipLevel
+  type: has_one
+  via: embedded object
+- from: Withdrawal
+  to: FundSource
+  type: belongs_to
+  via: withdraw address
+- from: Deposit
+  to: Currency
+  type: belongs_to
+  via: currency
+- from: ConvertOrder
+  to: Currency
+  type: belongs_to
+  via: from_currency and to_currency
+- from: Debt
+  to: Currency
+  type: belongs_to
+  via: currency
+- from: Repayment
+  to: Debt
+  type: belongs_to
+  via: m-wallet debt settlement
+- from: Interest
+  to: Debt
+  type: belongs_to
+  via: accrual on an outstanding loan
+- from: Liquidation
+  to: LiquidationDetail
+  type: has_many
+  via: getApiV3WalletMLiquidation
+- from: Order
+  to: Order
+  type: has_many
+  via: group_id (sibling orders in the same group)
+wallet_partition:
+  note: >-
+    A structural feature worth calling out: `path_wallet_type` is a PATH parameter on seven
+    operations, taking `spot` or `m`. The same order, trade, and account entities exist separately
+    in each wallet, so an agent must carry wallet context through every call — the entity id alone
+    does not identify which wallet it belongs to.
+  operations: [getApiV3WalletPathWalletTypeTrades, getApiV3WalletPathWalletTypeOrdersOpen, getApiV3WalletPathWalletTypeOrdersClosed, getApiV3WalletPathWalletTypeOrdersHistory, postApiV3WalletPathWalletTypeOrder, deleteApiV3WalletPathWalletTypeOrders, getApiV3WalletPathWalletTypeAccounts]

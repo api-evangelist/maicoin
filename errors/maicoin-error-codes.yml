@@ -1,0 +1,33 @@
+generated: '2026-08-25'
+method: searched
+source: https://maicoin.github.io/max-websocket-docs/ (README, "Error type" table)
+note: >-
+  The WebSocket surface publishes its own enumerated error registry, separate from the REST
+  error codes in errors/maicoin-problem-types.yml. WebSocket errors are returned as an ARRAY
+  under the abbreviated key `E`, with each entry formatted "E-<code>: <message>".
+envelope:
+  shape: '{"e": "error", "E": ["E-1004: invalid action"], "i": "<client id>", "T": <ms timestamp>}'
+  note: 'Keys are abbreviated: e=event, E=errors, i=id, T=at. See conventions/maicoin-conventions.yml for the full alias table.'
+error_codes:
+- code: 1004
+  message: invalid action
+  cause: The value in the `action` field is not a supported action.
+  remediation: Use one of `auth`, `sub`, `unsub`.
+- code: 1005
+  message: invalid json
+  cause: The command is not valid JSON.
+  remediation: Serialise the command as JSON before sending.
+- code: 1006
+  message: invalid nonce (difference of 30 seconds or more)
+  cause: The supplied nonce differs from server time by 30 seconds or more.
+  remediation: Synchronise the client clock; generate the nonce as Unix epoch milliseconds at send time.
+- code: 1007
+  message: authentication failed
+  cause: Bad API key/secret, or the signature was computed the wrong way.
+  remediation: >-
+    On WebSocket the signature is HMAC-SHA256 of the NONCE STRING alone, not of a base64 payload as
+    on REST. Reusing the REST signing routine is the common cause of this error.
+- code: 1012
+  message: nonce has already been used
+  cause: The nonce was replayed.
+  remediation: Use a strictly increasing, single-use nonce per request.

@@ -1,0 +1,95 @@
+generated: '2026-08-25'
+method: probed
+source: live HTTPS probes of every MaiCoin host named in apis.yml, the OpenAPI host field, and the provider's own llms.txt
+note: >-
+  RECORDED ABSENCE. No /.well-known/ document is served on any MaiCoin host. Every path
+  probed returned a 404 or was answered by a Cloudflare managed challenge; not one returned
+  a real document. No WellKnown, APICatalog or SecurityTxt pointer is emitted in apis.yml,
+  because a pointer would assert that MaiCoin serves a surface it does not serve.
+  max-api.maicoin.com and campaign.maicoin.com return honest 404s. max.maicoin.com,
+  www.maicoin.com and status-api-max.maicoin.com sit behind a Cloudflare managed challenge
+  that answers 403/429 with an HTML interstitial for every path including these — that is a
+  bot policy, not evidence of a document, and is recorded as challenged rather than as absent.
+hosts:
+- host: max-api.maicoin.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: campaign.maicoin.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: max.maicoin.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+  - path: /.well-known/api-catalog
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+  - path: /.well-known/agent-card.json
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+  - path: /.well-known/agent.json
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+- host: www.maicoin.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+  - path: /.well-known/api-catalog
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+  - path: /.well-known/agent-card.json
+    status: 403
+    note: Cloudflare managed challenge, HTML interstitial
+- host: status-api-max.maicoin.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 429
+    note: Cloudflare managed challenge, HTML interstitial
+  - path: /.well-known/agent-card.json
+    status: 429
+    note: Cloudflare managed challenge, HTML interstitial
+- host: maicoin.github.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+related_finding: >-
+  The maicoin.com zone does publish a machine-readable security contact, but via DNS rather
+  than /.well-known/ — the CAA record carries `0 iodef "mailto:security@maicoin.com"`. That is
+  a certificate-problem reporting address under RFC 8659, not a vulnerability disclosure
+  policy, so it does not earn a Security pointer. See security/maicoin-domain-security.yml.

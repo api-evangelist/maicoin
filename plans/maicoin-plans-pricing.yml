@@ -1,0 +1,99 @@
+generated: '2026-08-25'
+method: searched
+source: https://campaign.maicoin.com/en/vip
+plan_count: 10
+note: >-
+  MAX does not sell API access. There is no subscription, quota, or metered charge for using the
+  REST or WebSocket API — the API is free to any verified account holder, and MaiCoin monetises
+  through trading commission instead. The tiers below are therefore TRADING FEE tiers, not API
+  plans: a VIP level sets the maker/taker rate applied to orders an API client submits, which is
+  the real per-call cost of automated trading on this venue. Tiers are reached by EITHER 30-day
+  trading volume OR MAX token staking, whichever qualifies higher. Levels are recalculated daily
+  at 03:00 UTC+8 and rebates are paid in MAX Token at 03:00 daily.
+billing:
+  api_access_price: 0
+  currency: TWD
+  model: transaction-fee
+  metered: false
+plans:
+- name: VIP0
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 0
+  qualification_max_staked: 0
+  maker_fee_percent: 0.080
+  taker_fee_percent: 0.160
+- name: VIP1
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 3000000
+  qualification_max_staked: 500
+  maker_fee_percent: 0.045
+  taker_fee_percent: 0.140
+- name: VIP2
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 10000000
+  qualification_max_staked: 3000
+  maker_fee_percent: 0.040
+  taker_fee_percent: 0.110
+- name: VIP3
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 30000000
+  qualification_max_staked: 10000
+  maker_fee_percent: 0.020
+  taker_fee_percent: 0.090
+- name: VIP4
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 150000000
+  qualification_max_staked: 50000
+  maker_fee_percent: 0.010
+  taker_fee_percent: 0.080
+- name: VIP5
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 300000000
+  qualification_max_staked: 100000
+  maker_fee_percent: 0.010
+  taker_fee_percent: 0.070
+- name: VIP6
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 600000000
+  qualification_max_staked: 150000
+  maker_fee_percent: 0.010
+  taker_fee_percent: 0.060
+- name: VIP7
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 1000000000
+  qualification_max_staked: 300000
+  maker_fee_percent: 0.005
+  taker_fee_percent: 0.055
+- name: VIP8
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 1500000000
+  qualification_max_staked: 500000
+  maker_fee_percent: 0.000
+  taker_fee_percent: 0.050
+- name: VIP9
+  price: 0
+  currency: TWD
+  period: none
+  qualification_volume_30d_twd: 2000000000
+  qualification_max_staked: 100000
+  maker_fee_percent: -0.008
+  taker_fee_percent: 0.045
+  note: Negative maker fee — a rebate. MaiCoin's page states VIP9 "can earn 0.8 bps for trades".

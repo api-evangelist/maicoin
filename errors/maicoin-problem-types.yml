@@ -1,0 +1,73 @@
+generated: '2026-08-25'
+method: derived
+source: openapi/maicoin-max-v3-openapi.json (4xx response schemas) + https://max-api.maicoin.com/api/doc/external/v3 (info.description, "API 回應格式")
+format: proprietary
+rfc9457: false
+note: >-
+  MAX does NOT use RFC 9457 problem+json. It returns a proprietary envelope with a boolean
+  `success` flag and a nested `error` object carrying an integer `code`, a `message`, and an
+  optional free-form `info` object. Content type is application/json throughout.
+  COVERAGE GAP WORTH REPORTING: only 12 of 54 operations declare any 4xx response at all, and
+  none declares a 429. Given that MAX documents a hard 1200/minute limit and bans IPs on 429, the
+  most operationally important error on the whole API is absent from its own contract.
+envelope:
+  shape: '{"success": false, "error": {"code": <int>, "message": "<string>", "info": {}}}'
+  fields:
+  - name: success
+    type: boolean
+    required: true
+  - name: error.code
+    type: integer
+    required: true
+  - name: error.message
+    type: string
+    required: true
+  - name: error.info
+    type: object
+    required: false
+    description: 'Free-form extra context, e.g. {"limit": "0.0"}'
+  success_shape: '{"success": true}'
+problem_types:
+- code: 1001
+  http_status: 400
+  title: Invalid parameter
+  detail: 'Example from MaiCoin docs: "market does not have a valid value"'
+  remediation: Validate enum-valued parameters against GET /api/v3/markets or GET /api/v3/currencies before submitting.
+  source: MAX V3 API reference, "錯誤回應" example
+- code: 4000
+  http_status: 404
+  title: Resource not found
+  detail: The addressed resource does not exist.
+  remediation: Confirm the id, uuid, sn or client_oid identifies a record owned by the authenticated account.
+  source: openapi definitions Shared_Entities_Error (example 4000)
+- code: 4002
+  http_status: 400
+  title: Insufficient account permission
+  detail: "You don't have permission to perform this operation, please upgrade your account."
+  remediation: Complete the identity-verification level the operation requires, then retry.
+  source: openapi definitions Shared_Entities_Errors_Creation (example 4002)
+- code: 404
+  http_status: 404
+  title: Resource not found (localised)
+  detail: 找不到該資源
+  remediation: As 4000. Note MAX reuses the HTTP status number as the body error code here, inconsistently with the 4-digit codes elsewhere.
+  source: openapi definitions Shared_Entities_Errors_ResourceNotFound
+operations_declaring_4xx:
+  count: 12
+  total_operations: 54
+  detail:
+  - '404 GET /api/v3/wallet/m/liquidation'
+  - '404 GET /api/v3/withdrawal'
+  - '400,404 POST /api/v3/withdrawal'
+  - '400 POST /api/v3/withdrawal/twd'
+  - '404 GET /api/v3/deposit'
+  - '400,401,403 GET /api/v3/deposit_address'
+  - '400,403 POST /api/v3/convert'
+  - '404 GET /api/v3/convert'
+undeclared_but_real:
+- status: 429
+  note: >-
+    Documented in prose (1200/min REST; 20/s and 200/min WebSocket) and enforced with an automatic
+    IP ban, but declared on ZERO operations in the contract.
+- status: 401
+  note: Declared only on GET /api/v3/deposit_address, though all 42 private operations can return it.
