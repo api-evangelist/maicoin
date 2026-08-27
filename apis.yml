@@ -33,34 +33,13 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 apis:
-- aid: maicoin-max-rest-v3
-  name: MAX Exchange REST API v3
-  description: The MAX Exchange V3 RESTful API — 54 operations across public market data, spot and margin
-    (m-wallet) order management, trade history, wallet balances, deposits, withdrawals, internal transfers,
-    rewards, currency conversion and margin loans. Public endpoints are unauthenticated and limited to
-    1200 requests per minute per IP; private endpoints require HMAC-SHA256 signed requests and are limited
-    to 1200 requests per minute per account.
-  humanURL: https://campaign.maicoin.com/en/api-document
-  baseURL: https://max-api.maicoin.com
-  tags:
-  - Trading
-  - Market Data
-  - Cryptocurrency
-  - Wallet
-  - Order Management
-  properties:
-  - type: OpenAPI
-    url: openapi/maicoin-max-v3-openapi.json
-  - type: Documentation
-    url: https://campaign.maicoin.com/en/api-document
-  - type: APIReference
-    url: https://max-api.maicoin.com/doc/v3.html
 - aid: maicoin-max-websocket
   name: MAX Exchange WebSocket API
-  description: Real-time streaming service for MAX Exchange. Public channels cover order book (book),
-    trade, ticker, kline, market_status and m-wallet pool_quota; private channels stream order snapshots/updates,
-    trade snapshots/updates, account balance updates and m-wallet order/trade/ad_ratio/borrowing events
-    after HMAC-SHA256 nonce authentication.
+  description: >-
+    Real-time streaming service for MAX Exchange. Public channels cover order book (book), trade, ticker,
+    kline, market_status and m-wallet pool_quota; private channels stream order snapshots/updates, trade
+    snapshots/updates, account balance updates and m-wallet order/trade/ad_ratio/borrowing events after
+    HMAC-SHA256 nonce authentication.
   humanURL: https://maicoin.github.io/max-websocket-docs/
   baseURL: wss://max-stream.maicoin.com/ws
   tags:
@@ -73,7 +52,8 @@ apis:
     url: https://maicoin.github.io/max-websocket-docs/
 - aid: maicoin-max-status
   name: MAX System Status API
-  description: Unauthenticated system status endpoint reporting whether the MAX API is online or in maintenance,
+  description: >-
+    Unauthenticated system status endpoint reporting whether the MAX API is online or in maintenance,
     with an ISO 8601 last_changed_at timestamp. Documented in the MAX V3 API reference; status updates
     may lag by up to 30 seconds.
   humanURL: https://status-max.maicoin.com/
@@ -83,6 +63,104 @@ apis:
   - Operations
   properties:
   - type: Documentation
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-convert-api
+  name: MaiCoin Convert API
+  description: Operations about Converts
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - Convert
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-convert-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-order-api
+  name: MaiCoin Order API
+  description: Requires authentication
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - Order
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-order-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-public-api
+  name: MaiCoin Public API
+  description: Public endpoints
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - Public
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-public-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-trade-api
+  name: MaiCoin Trade API
+  description: Requires authentication
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - Trade
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-trade-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-transaction-api
+  name: MaiCoin Transaction API
+  description: Requires authentication
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - Transaction
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-transaction-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-user-api
+  name: MaiCoin User API
+  description: Operations about Users
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - User
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-user-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
+    url: https://max-api.maicoin.com/doc/v3.html
+- aid: maicoin:maicoin-wallet-api
+  name: MaiCoin Wallet API
+  description: Requires authentication
+  humanURL: https://campaign.maicoin.com/en/api-document
+  baseURL: https://max-api.maicoin.com
+  tags:
+  - Wallet
+  properties:
+  - type: OpenAPI
+    url: openapi/maicoin-wallet-api-openapi.yml
+  - type: Documentation
+    url: https://campaign.maicoin.com/en/api-document
+  - type: APIReference
     url: https://max-api.maicoin.com/doc/v3.html
 common:
 - type: DomainSecurity
