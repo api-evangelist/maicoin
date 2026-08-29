@@ -1,0 +1,25 @@
+slug: maicoin
+provider: MaiCoin
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Banking & Capital Markets
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Order
+  spec_file: maicoin-order-api-openapi.yml
+  capability_id: BC-1370.30
+  capability_id_l1: BC-1370
+  capability_name: Trading Order Management
+  confidence: 0.9
+  evidence: POST /api/v3/wallet/{path_wallet_type}/order 'submit a sell/buy order', DELETE /api/v3/order
+    'cancel an order', GET .../orders/open 'open orders'
+  reason: Classic trading order lifecycle — submit, query open/closed, cancel — on an exchange's trading
+    API.
