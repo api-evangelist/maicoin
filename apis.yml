@@ -9,6 +9,17 @@ description: MaiCoin is a Taiwan-based digital asset group that operates MAX (Ma
   book, ticker, k-line, trade, market status and private order/trade/account events. Authentication uses
   HMAC-SHA256 request signing over a base64 payload with X-MAX-ACCESSKEY, X-MAX-PAYLOAD and X-MAX-SIGNATURE
   headers.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://cdn.prod.website-files.com/61c42c1d462b6844a0915d9b/6a7160b6139bc8cdd5e3cf27_logo_MAX.png
 url: https://raw.githubusercontent.com/api-evangelist/maicoin/refs/heads/main/apis.yml
 x-type: company
