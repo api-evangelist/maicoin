@@ -1,0 +1,872 @@
+openapi: 3.2.0
+info:
+  title: MAX V3 RESTful API List Public API
+  description: "# Changelog\n\n* 舊版 [v2 changelog](https://max-api.maicoin.com/doc/v2.html)\n\n* 2024-11-28\n  * 新增 GET /api/v3/deposit_address API\n\n* 2024-08-30\n  * 新版 API v3 釋出，請參考 API v3 列表。\n\n* 2026-08-15\n  * 新增 系統狀態 API，用於查詢 MAX API 目前的系統服務狀態。\n\n\n# 基本介紹\n\nMAX 交易所提供 RESTful API 接口，讓開發者能夠程式化與自動化地進行交易操作，以提升交易體驗。所有 API 請求與回應皆使用 JSON 格式。\n\n\n## API 類別\n| API 類別 | 身分驗證 | 流量限制 | 使用須知 |\n|----------|----------|-----------|----------|\n| 公開 API | 無需驗證 | 每個 IP 地址 1 分鐘最多 1200 請求 | 可直接使用 |\n| 私人 API | [需要驗證](https://campaign.maicoin.com/api-document) | 每個帳號每分鐘內最多 1200 個請求 | [需要申請 API 密鑰](https://max.maicoin.com/api_tokens) |\n\n# 身分驗證\n\n## API 密鑰申請\n在開始使用 API 前，您需要：\n\n1. [註冊 MAX 帳戶](https://max.maicoin.com/signup)（如果您還沒有帳戶）\n2. 完成身分驗證\n3. 前往 [API 密鑰管理頁面](https://max.maicoin.com/api_tokens) 申請 API 密鑰\n\n完成申請後，您會獲得：\n- Access Key：用於識別您的 API 請求\n- Secret Key：用於加密簽署您的請求\n\n請妥善保管您的 API 密鑰，不要洩露給他人。\n\n## API 認證方式\n使用私人 API 時，需要在 HTTP 請求中遵循以下步驟：\n\n### 認證步驟\n\n1. **準備必要的參數**\n   - 建立包含 nonce（通常是當前時間戳）的 object\n   - 添加其他必要的請求參數（如 market 等）\n\n2. **構建簽名內容**\n   - 將 object 與請求路徑合併（添加 path 字段）\n   - 將合併後的字典轉換為 JSON 字符串\n\n3. **生成 payload**\n   - 對 JSON 字符串進行 Base64 編碼\n\n4. **計算簽名**\n   - 使用 HMAC-SHA256 演算法\n   - 以 Secret Key 作為密鑰\n   - 對 payload 進行加密\n   - 將結果轉換為十六進制字符串\n\n5. **設置 request header **\n   - 在 HTTP request header 中加入以下資訊：\n\n| request header 名稱 | 說明 |\n|--------------|------|\n| X-MAX-ACCESSKEY | 您的 Access Key |\n| X-MAX-PAYLOAD | 根據請求內容生成的負載（payload） |\n| X-MAX-SIGNATURE | 使用您的 Secret Key 跟負載內容生成的簽名 (signature) |\n| X-Sub-Account | 指定要操作的子帳號，預設為主帳號 \"main\" |\n| Content-Type | application/json |\n\n6. **發送請求**\n   - GET：參數附加在 URL 上\n   - DELETE/POST/PUT：參數放在 request body 中\n\n## 認證程式碼範例\n\n負載是根據請求內容產生的字串，簽名則是根據負載所產生的雜湊值，以 JavaScript 為例\n\n### JavaScript\n\n```javascript\nimport { createHmac } from 'crypto';\nimport fetch from 'node-fetch';\nimport * as qs from 'qs';\n\nconst accessKey = '<Your Access Key>';\nconst secretKey = '<Your Secret Key>';\n\n/**\n * 發送 MAX API 請求的通用函數\n * @param {string} path - API 路徑\n * @param {string} method - HTTP 方法 (GET, POST, DELETE, PUT)\n * @param {Object} extraParams - 額外的請求參數\n * @returns {Promise<Object>} 響應數據\n */\nasync function makeRequest(path, method = 'GET', extraParams = {}) {\n  // 1. 準備必要的參數\n  const params = {\n    nonce: Date.now(),  // 毫秒級時間戳，需與伺服器時間差 30 秒內且不可重複\n    ...extraParams     // 添加其他必要參數\n  };\n\n  // 2. 構建簽名內容\n  const paramsToBeSigned = {\n    ...params,\n    path: path         // 將參數與路徑合併\n  };\n\n  // 3. 生成 payload\n  const payload = Buffer.from(JSON.stringify(paramsToBeSigned)).toString('base64');  // Base64 編碼\n\n  // 4. 計算簽名\n  const signature = createHmac('sha256', secretKey)  // 使用 Secret Key 作為密鑰\n    .update(payload)                                // 對 payload 進行簽名\n    .digest('hex');                                 // 轉換為十六進制字符串\n\n  // 5. 設置 request header\n  const headers = {\n    'X-MAX-ACCESSKEY': accessKey,      // 添加 Access Key\n    'X-MAX-PAYLOAD': payload,          // 添加 payload\n    'X-MAX-SIGNATURE': signature,      // 添加簽名\n    'Content-Type': 'application/json' // 設置內容類型\n  };\n\n  // 6. 發送\n  let url = `https://max-api.maicoin.com${path}`;\n  let options = {\n    method: method,\n    headers: headers\n  };\n\n  if (method === 'GET') {\n    // GET：參數附加在 URL 上\n    url += `?${qs.stringify(params, {arrayFormat: 'brackets'})}`;\n  } else {\n    // DELETE/POST/PUT：參數放在 request body 中\n    options.body = JSON.stringify(params);\n  }\n\n  const response = await fetch(url, options);\n  return await response.json();\n}\n\nasync function main() {\n  try {\n    // 請求 info (GET sample)\n    const info = await makeRequest('/api/v3/info');\n    console.log('Info response:', info);\n\n    // 請求取消訂單 (DELETE sample)\n    const orders = await makeRequest('/api/v3/order', 'DELETE', { id: xxxxxxx });\n    console.log('Cancel orders response:', orders);\n\n    // (POST sample)\n    // const createOrder = await makeRequest('/api/v3/wallet/spot/order', 'POST', { market: 'btcusdt', side: 'buy', volume: '0.001', price: '20000' });\n    // console.log('Create order response:', createOrder);\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}\n\n// 執行主函數\nmain();\n\n```\n\n### Python\n\n```python\nimport base64\nimport hmac\nimport hashlib\nimport json\nimport time\nimport requests\nfrom urllib.parse import urlencode\n\naccess_key = '<Your Access Key>'\nsecret_key = '<Your Secret Key>'\n\ndef make_request(path, method='GET', extra_params=None):\n    \"\"\"\n    發送 MAX API 請求的通用函數\n    :param path: API 路徑\n    :param method: HTTP 方法 (GET, POST, DELETE, PUT)\n    :param extra_params: 額外的請求參數\n    :return: 響應數據\n    \"\"\"\n    # 1. 準備必要的參數\n    params = {\n        'nonce': int(time.time() * 1000)  # 毫秒級時間戳，需與伺服器時間差 30 秒內且不可重複\n    }\n\n    if extra_params:\n        params.update(extra_params)  # 添加其他必要參數\n\n    # 2. 構建簽名內容\n    params_to_sign = {**params, 'path': path}  # 將參數與路徑合併\n    json_str = json.dumps(params_to_sign)  # 轉換為 JSON 字符串\n\n    # 3. 生成 payload\n    payload = base64.b64encode(json_str.encode()).decode()  # Base64 編碼\n\n    # 4. 計算簽名\n    signature = hmac.new(\n        secret_key.encode(),           # 使用 Secret Key 作為密鑰\n        payload.encode(),              # 對 payload 進行簽名\n        hashlib.sha256                 # 使用 HMAC-SHA256 演算法\n    ).hexdigest()                      # 轉換為十六進制字符串\n\n    # 5. 設置 request header\n    headers = {\n        'X-MAX-ACCESSKEY': access_key,     # 添加 Access Key\n        'X-MAX-PAYLOAD': payload,          # 添加 payload\n        'X-MAX-SIGNATURE': signature,      # 添加簽名\n        'Content-Type': 'application/json'\n    }\n\n    # 6. 發送請求\n    url = f\"https://max-api.maicoin.com{path}\"\n\n    if method == 'GET':\n        # GET：參數附加在 URL 上\n        url += f\"?{urlencode(params)}\"\n        response = requests.get(url, headers=headers)\n    else:\n        # DELETE/POST/PUT：參數放在 request body 中\n        response = requests.request(\n            method=method,\n            url=url,\n            headers=headers,\n            data=json.dumps(params)\n        )\n\n    return response.json()\n\ndef main():\n    try:\n        # 請求 info (GET sample)\n        info = make_request('/api/v3/info')\n        print(\"Info response:\", info)\n\n        # 請求取消訂單 (DELETE sample)\n        # orders = make_request('/api/v3/order', 'DELETE', {'id': xxxxxxx})\n        # print(\"Cancel orders response:\", orders)\n\n        # POST sample（已註釋）\n        create_order = make_request(\n            '/api/v3/wallet/spot/order',\n            'POST',\n            {\n                'market': 'btcusdt',\n                'side': 'buy',\n                'volume': '0.001',\n                'price': '20000'\n            }\n        )\n        print(\"Create order response:\", create_order)\n\n    except Exception as error:\n        print(\"Error:\", error)\n\nif __name__ == \"__main__\":\n    main()\n\n```\n\n\n\n### 認證注意事項\n- nonce 需使用毫秒級時間戳\n- nonce 與伺服器時間差不得超過 30 秒\n- 每個 nonce 只能使用一次\n\n\n\n# API 回應格式\n\n## 成功回應\n當 API 請求成功時，會收到 HTTP 200 狀態碼以及相應的 JSON 資料。\n\n## 錯誤回應\n當 API 請求失敗時，會收到對應的 HTTP 狀態碼以及錯誤詳情：\n\n```json\n{\n  \"success\": false,\n  \"error\": {\n    \"code\": 1001,\n    \"message\": \"market does not have a valid value\"\n  }\n}\n```\n\n# 注意事項\n\n## 訂單操作說明\n訂單的建立與取消是非同步操作。當 API 返回成功結果時，表示系統已接受請求，但不代表操作已完成。建議通過以下方式確認訂單狀態：\n\n1. 使用 GET /api/v3/order 查詢訂單最新狀態\n2. 訂閱 WebSocket 取得即時更新\n\n特別說明：\n- 在進行取消訂單操作時，該訂單可能仍有未完成的成交\n- 若系統中有大量待處理的取消請求，訂單狀態的更新可能會有延遲\n- 建議使用 WebSocket 接收即時的訂單狀態更新\n\n## 安全指南\n1. 請勿與他人分享您的 API 密鑰\n2. 建議定期更換 API 密鑰\n3. 設定 IP 白名單以提升安全性\n\n# 其他\n\n## 系統狀態 API\n\n查詢 MAX API 目前的系統服務狀態。\n\n**端點**\n```\nGET https://status-api-max.maicoin.com/api/status/max-api\n```\n\n**驗證**：不需要\n\n**回應參數**\n\n| 參數            | 類型   | 說明                                |\n|-----------------|--------|-------------------------------------|\n| service         | string | 服務名稱                            |\n| status          | string | 系統狀態：`online` | `maintenance` |\n| last_changed_at | string | 狀態最後更新時間（ISO 8601 格式）   |\n\n**狀態說明**\n\n| 狀態          | 說明                                  |\n|---------------|---------------------------------------|\n| `online`      | 系統運作正常，所有 API 端點可正常使用 |\n| `maintenance` | 系統維護中，API 請求將無法處理        |\n\n**回應範例**\n\n```json\n{\n  \"service\": \"max-api\",\n  \"status\": \"online\",\n  \"last_changed_at\": \"2026-07-29T07:32:57Z\"\n}\n```\n\n> 注意：系統狀態更新最長可能有30秒延遲。短暫性中斷或 WebSocket 斷線等情形可能不會即時反映於此端點，建議交易程式同時實作自動重連機制。\n\n\n## WebSocket API\n如需即時市場資料或是即時訂單更新，請參考我們的 [WebSocket API 文件](https://maicoin.github.io/max-websocket-docs/)。WebSocket 提供更有效率的即時資料傳輸，建議用於：\n\n- 訂閱市場資料更新\n- 監控訂單狀態變化\n\n\n## SDK\n我們提供官方 SDK，方便開發者快速整合 Restful API 以及 WebSocket API：\n\n- Node.js SDK: [http://github.com/maicoin/max-exchange-api-node](https://github.com/maicoin/max-exchange-api-node)\n"
+  version: 3.0.0
+  x-logo:
+    url: /logo.png
+    altText: Max Restful Api
+    href: https://max.maicoin.com/
+servers:
+- url: https://max-api.maicoin.com/
+tags:
+- name: Public
+  description: Public endpoints
+paths:
+  /api/v3/wallet/m/index_prices:
+    get:
+      summary: index prices
+      description: Get latest index prices of m-wallet
+      responses:
+        '200':
+          description: index prices
+      tags:
+      - Public
+      operationId: getApiV3WalletMIndexPrices
+  /api/v3/wallet/m/historical_index_prices:
+    get:
+      summary: historical index prices
+      description: Get latest historical index prices
+      parameters:
+      - in: query
+        name: market
+        description: M-wallet supported markets, see /api/v3/wallet/m/markets for details.
+        required: true
+        schema:
+          type: string
+          enum:
+          - usdttwd
+          - btcusdt
+          - ethusdt
+      - in: query
+        name: start_time
+        description: Start time stamp in millisecond, responses historical index prices greater and equal to specified start_time.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: end_time
+        description: End time stamp in millisecond, responses historical index prices less to specified end time. The duration between start time and end time cannot be larger than 30 days.
+        required: true
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      responses:
+        '200':
+          description: historical index prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_HistoricalIndexPrice'
+      tags:
+      - Public
+      operationId: getApiV3WalletMHistoricalIndexPrices
+  /api/v3/wallet/m/limits:
+    get:
+      summary: available loan amount
+      description: Get total available loan amount
+      responses:
+        '200':
+          description: available loan amount
+      tags:
+      - Public
+      operationId: getApiV3WalletMLimits
+  /api/v3/wallet/m/interest_rates:
+    get:
+      summary: interest rates
+      description: Get latest interest rates of m-wallet
+      responses:
+        '200':
+          description: interest rates
+      tags:
+      - Public
+      operationId: getApiV3WalletMInterestRates
+  /api/v3/markets:
+    get:
+      summary: get all available markets.
+      description: "status includes suspended, cancel-only and active.<h4><p style='color:#10a54a;'>Market Status Explanation</p></h4>\n\n\n        suspended: both placing and cancelling orders are forbidden.\n        cancel-only: existing orders can be cancelled, but new orders cannot be placed.\n        active: both placing and cancelling orders are allowed.\n        "
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_Market'
+      tags:
+      - Public
+      operationId: getApiV3Markets
+  /api/v3/currencies:
+    get:
+      description: get all available currencies
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_Currencies'
+      tags:
+      - Public
+      operationId: getApiV3Currencies
+  /api/v3/timestamp:
+    get:
+      description: get server current time, in seconds since Unix epoch
+      responses:
+        '200':
+          description: get server current time, in seconds since Unix epoch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_Timestamp'
+      tags:
+      - Public
+      operationId: getApiV3Timestamp
+  /api/v3/k:
+    get:
+      description: get OHLC(k line) of a specific market
+      parameters:
+      - in: query
+        name: market
+        description: unique market id, check /api/v3/markets for available markets
+        required: true
+        schema:
+          type: string
+          enum:
+          - btctwd
+          - ethtwd
+          - ltctwd
+          - bchtwd
+          - usdttwd
+          - ethbtc
+          - trxtwd
+          - trxusdt
+          - btcusdt
+          - ethusdt
+          - bchusdt
+          - ltcusdt
+          - xrptwd
+          - xrpusdt
+          - maxusdt
+          - maxtwd
+          - usdctwd
+          - linktwd
+          - comptwd
+          - paxgtwd
+          - sandusdt
+          - usdcusdt
+          - linkusdt
+          - grttwd
+          - grtusdt
+          - yfitwd
+          - yfiusdt
+          - dogetwd
+          - dogeusdt
+          - adatwd
+          - dottwd
+          - poltwd
+          - compusdt
+          - dotusdt
+          - aavetwd
+          - paxgusdt
+          - polusdt
+          - aaveusdt
+          - adausdt
+          - soltwd
+          - solusdt
+          - shibtwd
+          - shibusdt
+          - sandtwd
+          - galatwd
+          - galausdt
+          - manatwd
+          - manausdt
+          - alicetwd
+          - aliceusdt
+          - masktwd
+          - maskusdt
+          - apetwd
+          - apeusdt
+          - xtztwd
+          - xtzusdt
+          - gmttwd
+          - gmtusdt
+          - gsttwd
+          - gstusdt
+          - bnbtwd
+          - bnbusdt
+          - enstwd
+          - ensusdt
+          - etctwd
+          - etcusdt
+          - arbtwd
+          - arbusdt
+          - avaxtwd
+          - avaxusdt
+          - taotwd
+          - taousdt
+          - suitwd
+          - suiusdt
+          - xauttwd
+          - xautusdt
+      - in: query
+        name: limit
+        description: returned data points limit, default to 30
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 30
+          maximum: 10000
+          minimum: 1
+      - in: query
+        name: period
+        description: time period of K line in minute, default to 1
+        required: false
+        schema:
+          type: integer
+          format: int32
+          enum:
+          - 1
+          - 5
+          - 15
+          - 30
+          - 60
+          - 120
+          - 240
+          - 360
+          - 720
+          - 1440
+          - 4320
+          - 10080
+          default: 1
+      - in: query
+        name: timestamp
+        description: the seconds elapsed since Unix epoch, responses k line greater and equal to specified time
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: array of [timestamp, open, high, low, close, volume]
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  items:
+                    type: string
+      tags:
+      - Public
+      operationId: getApiV3K
+  /api/v3/depth:
+    get:
+      description: get depth of a specified market
+      parameters:
+      - in: query
+        name: market
+        description: unique market id, check /api/v3/markets for available markets
+        required: true
+        schema:
+          type: string
+          enum:
+          - btctwd
+          - ethtwd
+          - ltctwd
+          - bchtwd
+          - usdttwd
+          - ethbtc
+          - trxtwd
+          - trxusdt
+          - btcusdt
+          - ethusdt
+          - bchusdt
+          - ltcusdt
+          - xrptwd
+          - xrpusdt
+          - maxusdt
+          - maxtwd
+          - usdctwd
+          - linktwd
+          - comptwd
+          - paxgtwd
+          - sandusdt
+          - usdcusdt
+          - linkusdt
+          - grttwd
+          - grtusdt
+          - yfitwd
+          - yfiusdt
+          - dogetwd
+          - dogeusdt
+          - adatwd
+          - dottwd
+          - poltwd
+          - compusdt
+          - dotusdt
+          - aavetwd
+          - paxgusdt
+          - polusdt
+          - aaveusdt
+          - adausdt
+          - soltwd
+          - solusdt
+          - shibtwd
+          - shibusdt
+          - sandtwd
+          - galatwd
+          - galausdt
+          - manatwd
+          - manausdt
+          - alicetwd
+          - aliceusdt
+          - masktwd
+          - maskusdt
+          - apetwd
+          - apeusdt
+          - xtztwd
+          - xtzusdt
+          - gmttwd
+          - gmtusdt
+          - gsttwd
+          - gstusdt
+          - bnbtwd
+          - bnbusdt
+          - enstwd
+          - ensusdt
+          - etctwd
+          - etcusdt
+          - arbtwd
+          - arbusdt
+          - avaxtwd
+          - avaxusdt
+          - taotwd
+          - taousdt
+          - suitwd
+          - suiusdt
+          - xauttwd
+          - xautusdt
+      - in: query
+        name: limit
+        description: returned price levels limit, default to maximum value
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 300
+          maximum: 300
+          minimum: 1
+      - in: query
+        name: sort_by_price
+        description: sorting by price or by ticker position
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        '200':
+          description: '[price, volume], timestamp in seconds since Unix epoch'
+      tags:
+      - Public
+      operationId: getApiV3Depth
+  /api/v3/trades:
+    get:
+      description: get recent trades on market, sorted in reverse creation order
+      parameters:
+      - in: query
+        name: market
+        description: unique market id, check /api/v2/markets for available markets
+        required: true
+        schema:
+          type: string
+          enum:
+          - btctwd
+          - ethtwd
+          - ltctwd
+          - bchtwd
+          - usdttwd
+          - ethbtc
+          - trxtwd
+          - trxusdt
+          - btcusdt
+          - ethusdt
+          - bchusdt
+          - ltcusdt
+          - xrptwd
+          - xrpusdt
+          - maxusdt
+          - maxtwd
+          - usdctwd
+          - linktwd
+          - comptwd
+          - paxgtwd
+          - sandusdt
+          - usdcusdt
+          - linkusdt
+          - grttwd
+          - grtusdt
+          - yfitwd
+          - yfiusdt
+          - dogetwd
+          - dogeusdt
+          - adatwd
+          - dottwd
+          - poltwd
+          - compusdt
+          - dotusdt
+          - aavetwd
+          - paxgusdt
+          - polusdt
+          - aaveusdt
+          - adausdt
+          - soltwd
+          - solusdt
+          - shibtwd
+          - shibusdt
+          - sandtwd
+          - galatwd
+          - galausdt
+          - manatwd
+          - manausdt
+          - alicetwd
+          - aliceusdt
+          - masktwd
+          - maskusdt
+          - apetwd
+          - apeusdt
+          - xtztwd
+          - xtzusdt
+          - gmttwd
+          - gmtusdt
+          - gsttwd
+          - gstusdt
+          - bnbtwd
+          - bnbusdt
+          - enstwd
+          - ensusdt
+          - etctwd
+          - etcusdt
+          - arbtwd
+          - arbusdt
+          - avaxtwd
+          - avaxusdt
+          - taotwd
+          - taousdt
+          - suitwd
+          - suiusdt
+          - xauttwd
+          - xautusdt
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond, responses trades whose create time is less than or equal to specified time.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_PublicTrade'
+      tags:
+      - Public
+      operationId: getApiV3Trades
+  /api/v3/tickers:
+    get:
+      description: get ticker of all markets
+      parameters:
+      - in: query
+        name: markets
+        description: 'Array of market id, check /api/v3/markets for available markets. Use bracket notation for array parameters. ex: ?markets[]=btcusdt&markets[]=ethusdt'
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: ticker is within 24 hours, "at" is timestamp in seconds since Unix epoch
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_Ticker'
+      tags:
+      - Public
+      operationId: getApiV3Tickers
+  /api/v3/ticker:
+    get:
+      description: get ticker of specific market
+      parameters:
+      - in: query
+        name: market
+        description: unique market id, check /api/v3/markets for available markets
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ticker is within 24 hours, "at" is timestamp in seconds since Unix epoch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_Ticker'
+      tags:
+      - Public
+      operationId: getApiV3Ticker
+components:
+  schemas:
+    External_V3_Entities_Currencies:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: usdt
+          description: unique currency id
+        type:
+          type: string
+          example: crypto
+          description: currency type fiat or crypto
+        precision:
+          type: integer
+          format: int32
+          example: 8
+          description: fixed precision of the currency
+        m_wallet_supported:
+          type: boolean
+          example: true
+          description: if support m_wallet
+        m_wallet_mortgageable:
+          type: boolean
+          example: true
+          description: currency is mortgageable or not
+        m_wallet_borrowable:
+          type: boolean
+          example: true
+          description: currency is borrowable or not
+        min_borrow_amount:
+          type: string
+          example: '0.001'
+          description: minimum borrowing amount
+        networks:
+          type: array
+          items:
+            $ref: '#/components/schemas/External_V3_Entities_Currency'
+          description: the network of this currency support
+        staking:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_Staking'
+          description: can stake or not
+      required:
+      - currency
+      - type
+      - precision
+      - m_wallet_supported
+      - m_wallet_mortgageable
+      - m_wallet_borrowable
+      - min_borrow_amount
+      - networks
+      - staking
+      description: External_V3_Entities_Currencies model
+    External_V3_Entities_HistoricalIndexPrice:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+          example: 1644572610000
+          description: timestamp (millisecond)
+        price:
+          type: string
+          example: '43497.56666666'
+          description: index price
+      required:
+      - timestamp
+      - price
+      description: External_V3_Entities_HistoricalIndexPrice model
+    External_V3_Entities_Timestamp:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+          example: 1678766175
+          description: Unix epoch timestamp in seconds
+      required:
+      - timestamp
+      description: External_V3_Entities_Timestamp model
+    External_V3_Entities_Market:
+      type: object
+      properties:
+        id:
+          type: string
+          example: btctwd
+          description: unique market id, check /api/v3/markets for available markets
+        status:
+          type: string
+          example: active
+          description: market status
+        base_unit:
+          type: string
+          example: btc
+          description: base unit
+        base_unit_precision:
+          type: integer
+          format: int32
+          example: 5
+          description: fixed precision of base unit, can be negative, for example -3
+        min_base_amount:
+          type: number
+          format: float
+          example: 0.0015
+          description: minimum of base amount
+        quote_unit:
+          type: string
+          example: twd
+          description: quote unit
+        quote_unit_precision:
+          type: integer
+          format: int32
+          example: 1
+          description: fixed precision of quote unit
+        min_quote_amount:
+          type: number
+          format: float
+          example: 26.0
+          description: minimum of quote amount
+        m_wallet_supported:
+          type: boolean
+          example: false
+          description: m wallet supported
+      required:
+      - id
+      - status
+      - base_unit
+      - base_unit_precision
+      - min_base_amount
+      - quote_unit
+      - quote_unit_precision
+      - min_quote_amount
+      - m_wallet_supported
+      description: External_V3_Entities_Market model
+    External_V3_Entities_Ticker:
+      type: object
+      properties:
+        market:
+          type: string
+          example: ethtwd
+          description: market id, get available markets by api 'GET /api/v3/markets'
+        at:
+          type: integer
+          format: int32
+          example: 1531905257
+          description: timestamp in seconds since Unix epoch
+        buy:
+          type: string
+          example: '200000.0'
+          description: highest buy price
+        buy_vol:
+          type: string
+          example: '0.01'
+          description: volume of highest buy price
+        sell:
+          type: string
+          example: '200000.0'
+          description: lowest sell price
+        sell_vol:
+          type: string
+          example: '0.02'
+          description: volume of lowest sell price
+        open:
+          type: string
+          example: '200000.0'
+          description: price before 24 hours
+        low:
+          type: string
+          example: '200000.0'
+          description: lowest price within 24 hours
+        high:
+          type: string
+          example: '200000.0'
+          description: highest price within 24 hours
+        last:
+          type: string
+          example: '200000.0'
+          description: last traded price
+        vol:
+          type: string
+          example: '10.0'
+          description: traded volume within 24 hours
+        vol_in_btc:
+          type: string
+          example: '10.0'
+          description: traded volume within 24 hours in equal BTC
+        vol_in_quote:
+          type: string
+          example: '10.0'
+          description: traded volume within 24 hours in equal quote unit
+      required:
+      - market
+      - at
+      - buy
+      - buy_vol
+      - sell
+      - sell_vol
+      - open
+      - low
+      - high
+      - last
+      - vol
+      - vol_in_btc
+      - vol_in_quote
+      description: External_V3_Entities_Ticker model
+    External_V3_Entities_PublicTrade:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 68444
+          description: trade id
+        price:
+          type: string
+          example: '21499.0'
+          description: strike price
+        volume:
+          type: string
+          example: '0.2658'
+          description: traded volume
+        funds:
+          type: string
+          example: '5714.4'
+          description: total traded amount
+        market:
+          type: string
+          example: ethtwd
+          description: market id
+        side:
+          type: string
+          example: bid
+          description: '''bid'' or ''ask''; side of maker for public trades'
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+      required:
+      - id
+      - price
+      - volume
+      - funds
+      - market
+      - side
+      - created_at
+      description: External_V3_Entities_PublicTrade model
+    External_V3_Entities_Currency:
+      type: object
+      properties:
+        token_contract_address:
+          type:
+          - string
+          - 'null'
+          example: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+          description: contract address of currency
+        precision:
+          type: integer
+          format: int32
+          example: 8
+          description: fixed precision of the currency
+        id:
+          type: string
+          example: trc20usdt
+          description: currency version, check /api/v3/currencies for available currency versions
+        network_protocol:
+          type: string
+          example: tron-trc20
+          description: network protocol of currency
+        network_congested:
+          type: boolean
+          example: false
+          description: is network congested or not
+        deposit_confirmations:
+          type: integer
+          format: int32
+          example: 3
+          description: how many blocks need to be confirmed after deposit
+        withdrawal_fee:
+          type: number
+          format: float
+          example: 0.0005
+          description: withdrawal fee of the currency
+        min_withdrawal_amount:
+          type: number
+          format: float
+          example: 0.001
+          description: minimum withdrawal amount
+        withdrawal_enabled:
+          type: boolean
+          example: true
+          description: if enable withdrawal
+        deposit_enabled:
+          type: boolean
+          example: true
+          description: if enable deposit
+        need_memo:
+          type: boolean
+          example: false
+          description: if currency address need memo or tag
+      required:
+      - token_contract_address
+      - precision
+      - id
+      - network_protocol
+      - network_congested
+      - deposit_confirmations
+      - withdrawal_fee
+      - min_withdrawal_amount
+      - withdrawal_enabled
+      - deposit_enabled
+      - need_memo
+    External_V3_Entities_Staking:
+      type: object
+      properties:
+        stake_flag:
+          type: boolean
+          example: true
+          description: stake flag
+        unstake_flag:
+          type: boolean
+          example: false
+          description: unstake flag
+      required:
+      - stake_flag
+      - unstake_flag

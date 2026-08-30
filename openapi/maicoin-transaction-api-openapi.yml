@@ -1,0 +1,1903 @@
+openapi: 3.2.0
+info:
+  title: MAX V3 RESTful API List Transaction API
+  description: "# Changelog\n\n* 舊版 [v2 changelog](https://max-api.maicoin.com/doc/v2.html)\n\n* 2024-11-28\n  * 新增 GET /api/v3/deposit_address API\n\n* 2024-08-30\n  * 新版 API v3 釋出，請參考 API v3 列表。\n\n* 2026-08-15\n  * 新增 系統狀態 API，用於查詢 MAX API 目前的系統服務狀態。\n\n\n# 基本介紹\n\nMAX 交易所提供 RESTful API 接口，讓開發者能夠程式化與自動化地進行交易操作，以提升交易體驗。所有 API 請求與回應皆使用 JSON 格式。\n\n\n## API 類別\n| API 類別 | 身分驗證 | 流量限制 | 使用須知 |\n|----------|----------|-----------|----------|\n| 公開 API | 無需驗證 | 每個 IP 地址 1 分鐘最多 1200 請求 | 可直接使用 |\n| 私人 API | [需要驗證](https://campaign.maicoin.com/api-document) | 每個帳號每分鐘內最多 1200 個請求 | [需要申請 API 密鑰](https://max.maicoin.com/api_tokens) |\n\n# 身分驗證\n\n## API 密鑰申請\n在開始使用 API 前，您需要：\n\n1. [註冊 MAX 帳戶](https://max.maicoin.com/signup)（如果您還沒有帳戶）\n2. 完成身分驗證\n3. 前往 [API 密鑰管理頁面](https://max.maicoin.com/api_tokens) 申請 API 密鑰\n\n完成申請後，您會獲得：\n- Access Key：用於識別您的 API 請求\n- Secret Key：用於加密簽署您的請求\n\n請妥善保管您的 API 密鑰，不要洩露給他人。\n\n## API 認證方式\n使用私人 API 時，需要在 HTTP 請求中遵循以下步驟：\n\n### 認證步驟\n\n1. **準備必要的參數**\n   - 建立包含 nonce（通常是當前時間戳）的 object\n   - 添加其他必要的請求參數（如 market 等）\n\n2. **構建簽名內容**\n   - 將 object 與請求路徑合併（添加 path 字段）\n   - 將合併後的字典轉換為 JSON 字符串\n\n3. **生成 payload**\n   - 對 JSON 字符串進行 Base64 編碼\n\n4. **計算簽名**\n   - 使用 HMAC-SHA256 演算法\n   - 以 Secret Key 作為密鑰\n   - 對 payload 進行加密\n   - 將結果轉換為十六進制字符串\n\n5. **設置 request header **\n   - 在 HTTP request header 中加入以下資訊：\n\n| request header 名稱 | 說明 |\n|--------------|------|\n| X-MAX-ACCESSKEY | 您的 Access Key |\n| X-MAX-PAYLOAD | 根據請求內容生成的負載（payload） |\n| X-MAX-SIGNATURE | 使用您的 Secret Key 跟負載內容生成的簽名 (signature) |\n| X-Sub-Account | 指定要操作的子帳號，預設為主帳號 \"main\" |\n| Content-Type | application/json |\n\n6. **發送請求**\n   - GET：參數附加在 URL 上\n   - DELETE/POST/PUT：參數放在 request body 中\n\n## 認證程式碼範例\n\n負載是根據請求內容產生的字串，簽名則是根據負載所產生的雜湊值，以 JavaScript 為例\n\n### JavaScript\n\n```javascript\nimport { createHmac } from 'crypto';\nimport fetch from 'node-fetch';\nimport * as qs from 'qs';\n\nconst accessKey = '<Your Access Key>';\nconst secretKey = '<Your Secret Key>';\n\n/**\n * 發送 MAX API 請求的通用函數\n * @param {string} path - API 路徑\n * @param {string} method - HTTP 方法 (GET, POST, DELETE, PUT)\n * @param {Object} extraParams - 額外的請求參數\n * @returns {Promise<Object>} 響應數據\n */\nasync function makeRequest(path, method = 'GET', extraParams = {}) {\n  // 1. 準備必要的參數\n  const params = {\n    nonce: Date.now(),  // 毫秒級時間戳，需與伺服器時間差 30 秒內且不可重複\n    ...extraParams     // 添加其他必要參數\n  };\n\n  // 2. 構建簽名內容\n  const paramsToBeSigned = {\n    ...params,\n    path: path         // 將參數與路徑合併\n  };\n\n  // 3. 生成 payload\n  const payload = Buffer.from(JSON.stringify(paramsToBeSigned)).toString('base64');  // Base64 編碼\n\n  // 4. 計算簽名\n  const signature = createHmac('sha256', secretKey)  // 使用 Secret Key 作為密鑰\n    .update(payload)                                // 對 payload 進行簽名\n    .digest('hex');                                 // 轉換為十六進制字符串\n\n  // 5. 設置 request header\n  const headers = {\n    'X-MAX-ACCESSKEY': accessKey,      // 添加 Access Key\n    'X-MAX-PAYLOAD': payload,          // 添加 payload\n    'X-MAX-SIGNATURE': signature,      // 添加簽名\n    'Content-Type': 'application/json' // 設置內容類型\n  };\n\n  // 6. 發送\n  let url = `https://max-api.maicoin.com${path}`;\n  let options = {\n    method: method,\n    headers: headers\n  };\n\n  if (method === 'GET') {\n    // GET：參數附加在 URL 上\n    url += `?${qs.stringify(params, {arrayFormat: 'brackets'})}`;\n  } else {\n    // DELETE/POST/PUT：參數放在 request body 中\n    options.body = JSON.stringify(params);\n  }\n\n  const response = await fetch(url, options);\n  return await response.json();\n}\n\nasync function main() {\n  try {\n    // 請求 info (GET sample)\n    const info = await makeRequest('/api/v3/info');\n    console.log('Info response:', info);\n\n    // 請求取消訂單 (DELETE sample)\n    const orders = await makeRequest('/api/v3/order', 'DELETE', { id: xxxxxxx });\n    console.log('Cancel orders response:', orders);\n\n    // (POST sample)\n    // const createOrder = await makeRequest('/api/v3/wallet/spot/order', 'POST', { market: 'btcusdt', side: 'buy', volume: '0.001', price: '20000' });\n    // console.log('Create order response:', createOrder);\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}\n\n// 執行主函數\nmain();\n\n```\n\n### Python\n\n```python\nimport base64\nimport hmac\nimport hashlib\nimport json\nimport time\nimport requests\nfrom urllib.parse import urlencode\n\naccess_key = '<Your Access Key>'\nsecret_key = '<Your Secret Key>'\n\ndef make_request(path, method='GET', extra_params=None):\n    \"\"\"\n    發送 MAX API 請求的通用函數\n    :param path: API 路徑\n    :param method: HTTP 方法 (GET, POST, DELETE, PUT)\n    :param extra_params: 額外的請求參數\n    :return: 響應數據\n    \"\"\"\n    # 1. 準備必要的參數\n    params = {\n        'nonce': int(time.time() * 1000)  # 毫秒級時間戳，需與伺服器時間差 30 秒內且不可重複\n    }\n\n    if extra_params:\n        params.update(extra_params)  # 添加其他必要參數\n\n    # 2. 構建簽名內容\n    params_to_sign = {**params, 'path': path}  # 將參數與路徑合併\n    json_str = json.dumps(params_to_sign)  # 轉換為 JSON 字符串\n\n    # 3. 生成 payload\n    payload = base64.b64encode(json_str.encode()).decode()  # Base64 編碼\n\n    # 4. 計算簽名\n    signature = hmac.new(\n        secret_key.encode(),           # 使用 Secret Key 作為密鑰\n        payload.encode(),              # 對 payload 進行簽名\n        hashlib.sha256                 # 使用 HMAC-SHA256 演算法\n    ).hexdigest()                      # 轉換為十六進制字符串\n\n    # 5. 設置 request header\n    headers = {\n        'X-MAX-ACCESSKEY': access_key,     # 添加 Access Key\n        'X-MAX-PAYLOAD': payload,          # 添加 payload\n        'X-MAX-SIGNATURE': signature,      # 添加簽名\n        'Content-Type': 'application/json'\n    }\n\n    # 6. 發送請求\n    url = f\"https://max-api.maicoin.com{path}\"\n\n    if method == 'GET':\n        # GET：參數附加在 URL 上\n        url += f\"?{urlencode(params)}\"\n        response = requests.get(url, headers=headers)\n    else:\n        # DELETE/POST/PUT：參數放在 request body 中\n        response = requests.request(\n            method=method,\n            url=url,\n            headers=headers,\n            data=json.dumps(params)\n        )\n\n    return response.json()\n\ndef main():\n    try:\n        # 請求 info (GET sample)\n        info = make_request('/api/v3/info')\n        print(\"Info response:\", info)\n\n        # 請求取消訂單 (DELETE sample)\n        # orders = make_request('/api/v3/order', 'DELETE', {'id': xxxxxxx})\n        # print(\"Cancel orders response:\", orders)\n\n        # POST sample（已註釋）\n        create_order = make_request(\n            '/api/v3/wallet/spot/order',\n            'POST',\n            {\n                'market': 'btcusdt',\n                'side': 'buy',\n                'volume': '0.001',\n                'price': '20000'\n            }\n        )\n        print(\"Create order response:\", create_order)\n\n    except Exception as error:\n        print(\"Error:\", error)\n\nif __name__ == \"__main__\":\n    main()\n\n```\n\n\n\n### 認證注意事項\n- nonce 需使用毫秒級時間戳\n- nonce 與伺服器時間差不得超過 30 秒\n- 每個 nonce 只能使用一次\n\n\n\n# API 回應格式\n\n## 成功回應\n當 API 請求成功時，會收到 HTTP 200 狀態碼以及相應的 JSON 資料。\n\n## 錯誤回應\n當 API 請求失敗時，會收到對應的 HTTP 狀態碼以及錯誤詳情：\n\n```json\n{\n  \"success\": false,\n  \"error\": {\n    \"code\": 1001,\n    \"message\": \"market does not have a valid value\"\n  }\n}\n```\n\n# 注意事項\n\n## 訂單操作說明\n訂單的建立與取消是非同步操作。當 API 返回成功結果時，表示系統已接受請求，但不代表操作已完成。建議通過以下方式確認訂單狀態：\n\n1. 使用 GET /api/v3/order 查詢訂單最新狀態\n2. 訂閱 WebSocket 取得即時更新\n\n特別說明：\n- 在進行取消訂單操作時，該訂單可能仍有未完成的成交\n- 若系統中有大量待處理的取消請求，訂單狀態的更新可能會有延遲\n- 建議使用 WebSocket 接收即時的訂單狀態更新\n\n## 安全指南\n1. 請勿與他人分享您的 API 密鑰\n2. 建議定期更換 API 密鑰\n3. 設定 IP 白名單以提升安全性\n\n# 其他\n\n## 系統狀態 API\n\n查詢 MAX API 目前的系統服務狀態。\n\n**端點**\n```\nGET https://status-api-max.maicoin.com/api/status/max-api\n```\n\n**驗證**：不需要\n\n**回應參數**\n\n| 參數            | 類型   | 說明                                |\n|-----------------|--------|-------------------------------------|\n| service         | string | 服務名稱                            |\n| status          | string | 系統狀態：`online` | `maintenance` |\n| last_changed_at | string | 狀態最後更新時間（ISO 8601 格式）   |\n\n**狀態說明**\n\n| 狀態          | 說明                                  |\n|---------------|---------------------------------------|\n| `online`      | 系統運作正常，所有 API 端點可正常使用 |\n| `maintenance` | 系統維護中，API 請求將無法處理        |\n\n**回應範例**\n\n```json\n{\n  \"service\": \"max-api\",\n  \"status\": \"online\",\n  \"last_changed_at\": \"2026-07-29T07:32:57Z\"\n}\n```\n\n> 注意：系統狀態更新最長可能有30秒延遲。短暫性中斷或 WebSocket 斷線等情形可能不會即時反映於此端點，建議交易程式同時實作自動重連機制。\n\n\n## WebSocket API\n如需即時市場資料或是即時訂單更新，請參考我們的 [WebSocket API 文件](https://maicoin.github.io/max-websocket-docs/)。WebSocket 提供更有效率的即時資料傳輸，建議用於：\n\n- 訂閱市場資料更新\n- 監控訂單狀態變化\n\n\n## SDK\n我們提供官方 SDK，方便開發者快速整合 Restful API 以及 WebSocket API：\n\n- Node.js SDK: [http://github.com/maicoin/max-exchange-api-node](https://github.com/maicoin/max-exchange-api-node)\n"
+  version: 3.0.0
+  x-logo:
+    url: /logo.png
+    altText: Max Restful Api
+    href: https://max.maicoin.com/
+servers:
+- url: https://max-api.maicoin.com/
+tags:
+- name: Transaction
+  description: Requires authentication
+paths:
+  /api/v3/wallet/m/transfer:
+    post:
+      summary: make spot wallet <-> m wallet transfer
+      description: Create a transaction between your spot wallet and m-wallet
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_BorrowingTransfer'
+      tags:
+      - Transaction
+      operationId: postApiV3WalletMTransfer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postApiV3WalletMTransfer'
+        required: true
+  /api/v3/wallet/m/transfers:
+    get:
+      summary: transactions between spot wallet and m-wallet
+      description: List transactions between your spot wallet and m-wallet
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: currency
+        description: unique composite currency id
+        required: true
+        schema:
+          type: string
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+      - in: query
+        name: side
+        description: inbound or outbound transfers
+        required: true
+        schema:
+          type: string
+          enum:
+          - in
+          - out
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_BorrowingTransfer'
+      tags:
+      - Transaction
+      operationId: getApiV3WalletMTransfers
+  /api/v3/withdrawal:
+    get:
+      description: Get details of a specific external withdraw
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: uuid
+        description: unique withdraw id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_Withdrawal'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shared_Entities_Errors_ResourceNotFound'
+      tags:
+      - Transaction
+      operationId: getApiV3Withdrawal
+    post:
+      description: Submit a crypto withdrawal. IP whitelist for api token is required.
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_Withdrawal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shared_Entities_Errors_Creation'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V2_Entities_Errors_ResourceNotFound'
+      tags:
+      - Transaction
+      operationId: postApiV3Withdrawal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postApiV3Withdrawal'
+        required: true
+  /api/v3/withdrawal/twd:
+    post:
+      description: Submit twd withdrawal to verified bank account. IP whitelist for api token is required.
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_Withdrawal'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shared_Entities_Errors_Creation'
+      tags:
+      - Transaction
+      operationId: postApiV3WithdrawalTwd
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postApiV3WithdrawalTwd'
+        required: true
+  /api/v3/withdrawals:
+    get:
+      description: Get external withdrawals history
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: currency
+        description: unique currency id, check /api/v2/currencies for available currencies
+        required: false
+        schema:
+          type: string
+          enum:
+          - twd
+          - btc
+          - eth
+          - ltc
+          - bch
+          - mith
+          - usdt
+          - trx
+          - cccx
+          - pal
+          - eos
+          - bat
+          - zrx
+          - gnt
+          - omg
+          - knc
+          - twdt
+          - xrp
+          - fmf
+          - max
+          - seele
+          - bcnt
+          - sand
+          - usdc
+          - link
+          - grt
+          - yfi
+          - doge
+          - comp
+          - dot
+          - ada
+          - sol
+          - shib
+          - gala
+          - mana
+          - alice
+          - pol
+          - looks
+          - rly
+          - loot
+          - mask
+          - ape
+          - xtz
+          - gmt
+          - gst
+          - bnb
+          - ens
+          - etc
+          - arb
+          - avax
+          - sui
+          - paxg
+          - xaut
+      - in: query
+        name: state
+        description: state of records
+        required: false
+        schema:
+          type: string
+          enum:
+          - processing
+          - failed
+          - canceled
+          - done
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_Withdrawal'
+      tags:
+      - Transaction
+      operationId: getApiV3Withdrawals
+  /api/v3/deposit:
+    get:
+      description: Get details of a specific deposit
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: txid
+        description: unique transaction id
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: uuid
+        description: unique deposit id
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_Deposit'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V2_Entities_Errors_DepositBySnNotFound'
+      tags:
+      - Transaction
+      operationId: getApiV3Deposit
+  /api/v3/deposits:
+    get:
+      description: Get external deposits history
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: currency
+        description: unique currency id, check /api/v2/currencies for available currencies
+        required: false
+        schema:
+          type: string
+          enum:
+          - twd
+          - btc
+          - eth
+          - ltc
+          - bch
+          - mith
+          - usdt
+          - trx
+          - cccx
+          - pal
+          - eos
+          - bat
+          - zrx
+          - gnt
+          - omg
+          - knc
+          - twdt
+          - xrp
+          - fmf
+          - max
+          - seele
+          - bcnt
+          - sand
+          - usdc
+          - link
+          - grt
+          - yfi
+          - doge
+          - comp
+          - dot
+          - ada
+          - sol
+          - shib
+          - gala
+          - mana
+          - alice
+          - pol
+          - looks
+          - rly
+          - loot
+          - mask
+          - ape
+          - xtz
+          - gmt
+          - gst
+          - bnb
+          - ens
+          - etc
+          - arb
+          - avax
+          - sui
+          - paxg
+          - xaut
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_Deposit'
+      tags:
+      - Transaction
+      operationId: getApiV3Deposits
+  /api/v3/internal_transfers:
+    get:
+      description: Get internal transfers history
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: side
+        required: true
+        schema:
+          type: string
+          enum:
+          - in
+          - out
+          default: in
+      - in: query
+        name: currency
+        description: unique currency id
+        required: false
+        schema:
+          type: string
+          enum:
+          - btc
+          - eth
+          - ltc
+          - bch
+          - mith
+          - usdt
+          - trx
+          - cccx
+          - pal
+          - eos
+          - bat
+          - zrx
+          - gnt
+          - omg
+          - knc
+          - twdt
+          - xrp
+          - fmf
+          - max
+          - seele
+          - bcnt
+          - sand
+          - usdc
+          - link
+          - grt
+          - yfi
+          - doge
+          - comp
+          - dot
+          - ada
+          - sol
+          - shib
+          - gala
+          - mana
+          - alice
+          - pol
+          - looks
+          - rly
+          - loot
+          - mask
+          - ape
+          - xtz
+          - gmt
+          - gst
+          - bnb
+          - ens
+          - etc
+          - arb
+          - avax
+          - sui
+          - paxg
+          - xaut
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_InternalTransfers_Transfer'
+      tags:
+      - Transaction
+      operationId: getApiV3InternalTransfers
+  /api/v3/rewards:
+    get:
+      description: Get rewards history
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: reward_type
+        required: false
+        schema:
+          type: string
+          enum:
+          - vip_rebate
+          - staking_reward
+          - rpi_rebate
+          - redemption_reward
+          - commission
+          - airdrop_reward
+          - trading_reward
+          - mining_reward
+          - holding_reward
+          - yield
+      - in: query
+        name: currency
+        description: unique currency id
+        required: false
+        schema:
+          type: string
+          enum:
+          - btc
+          - eth
+          - ltc
+          - bch
+          - mith
+          - usdt
+          - trx
+          - cccx
+          - pal
+          - eos
+          - bat
+          - zrx
+          - gnt
+          - omg
+          - knc
+          - twdt
+          - xrp
+          - fmf
+          - max
+          - seele
+          - bcnt
+          - sand
+          - usdc
+          - link
+          - grt
+          - yfi
+          - doge
+          - comp
+          - dot
+          - ada
+          - sol
+          - shib
+          - gala
+          - mana
+          - alice
+          - pol
+          - looks
+          - rly
+          - loot
+          - mask
+          - ape
+          - xtz
+          - gmt
+          - gst
+          - bnb
+          - ens
+          - etc
+          - arb
+          - avax
+          - sui
+          - paxg
+          - xaut
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_InternalTransfers_Reward'
+      tags:
+      - Transaction
+      operationId: getApiV3Rewards
+  /api/v3/fund_transactions/deposits:
+    get:
+      description: get deposit transactions
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Deposit'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsDeposits
+  /api/v3/fund_transactions/deposit:
+    get:
+      description: get deposit transaction
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: sn
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Deposit'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsDeposit
+  /api/v3/fund_transactions/withdrawals:
+    get:
+      description: get withdraw transactions
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Withdrawal'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsWithdrawals
+  /api/v3/fund_transactions/withdrawal:
+    get:
+      description: get withdraw transaction
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: sn
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Withdrawal'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsWithdrawal
+  /api/v3/fund_transactions/transfers:
+    get:
+      description: get transfer transactions
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Transfer'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsTransfers
+  /api/v3/fund_transactions/transfer:
+    get:
+      description: get transfer transaction
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: sn
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Transfer'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsTransfer
+  /api/v3/fund_transactions/rewards:
+    get:
+      description: get reward transactions
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: timestamp
+        description: timestamp in millisecond. responses records whose created time less than or equal to specified timestamp if order in desc, responses records whose created time is greater than or equal to timestamp if order in asc. latest time as default.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          maximum: 4102444800000
+          minimum: 1512950400000
+      - in: query
+        name: order
+        description: order in created time.
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - in: query
+        name: limit
+        description: returned limit (1~1000, default 50)
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          maximum: 1000
+          minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Reward'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsRewards
+  /api/v3/fund_transactions/reward:
+    get:
+      description: get reward transaction
+      parameters:
+      - in: header
+        name: X-MAX-ACCESSKEY
+        description: access key
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-PAYLOAD
+        description: encoded payload
+        required: true
+        schema:
+          type: string
+      - in: header
+        name: X-MAX-SIGNATURE
+        description: encrypted signature
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: sn
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Reward'
+      tags:
+      - Transaction
+      operationId: getApiV3FundTransactionsReward
+components:
+  schemas:
+    External_V3_Entities_Deposit:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18022603540001'
+          description: unique deposit id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        network_protocol:
+          type: string
+          example: ethereum-erc20
+          description: network protocol of currency
+        amount:
+          type: string
+          example: '0.019'
+          description: deposit amount
+        to_address:
+          type: string
+          example: '0x5c7d23d516f120d322fc7b116386b7e491739138'
+          description: to_address/virtual account number
+        txid:
+          type: string
+          example: '0x8daa98e07886985bd6a142cd81b83582d6085f7eb931dc4984c18c84f2a845e0'
+          description: unique transaction id
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: received timestamp (millisecond)
+        confirmations:
+          type: integer
+          format: int32
+          example: 64
+          description: confirmations for crypto currency
+        state:
+          type: string
+          example: pending
+          description: deposit state, processing/failed/canceled/done
+        state_reason:
+          type: string
+          example: ''
+          description: state reason, blank if no further action needed
+      required:
+      - uuid
+      - currency
+      - network_protocol
+      - amount
+      - to_address
+      - txid
+      - created_at
+      - confirmations
+      - state
+      - state_reason
+      description: External_V3_Entities_Deposit model
+    External_V3_Entities_FundTransactions_Deposit:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique deposit id
+        is_internal:
+          type: boolean
+          example: false
+          description: whether it's an internal transfer
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: deposit amount
+        state:
+          type: string
+          example: processing
+          description: deposit state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        network_protocol:
+          type:
+          - string
+          - 'null'
+          example: ethereum-erc20
+          description: network protocol of currency, null for internal deposit
+        to_address:
+          type:
+          - string
+          - 'null'
+          example: '0x5c7d23d516f120d322fc7b116386b7e491739138'
+          description: to_address/virtual account number, null for internal deposit
+        txid:
+          type:
+          - string
+          - 'null'
+          example: 0x8daa98e07886985bd6a142cd81b83582d6085f7eb931dc4984c18c84f2a845e0, null for internal deposit
+          description: unique transaction id
+        from:
+          type:
+          - string
+          - 'null'
+          example: pr***@***.com
+          description: from member in email, null for external deposit
+      required:
+      - sn
+      - is_internal
+      - currency
+      - amount
+      - state
+      - created_at
+      - network_protocol
+      - to_address
+      - txid
+      - from
+      description: External_V3_Entities_FundTransactions_Deposit model
+    External_V3_Entities_FundTransactions_Withdrawal:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique withdraw id
+        is_internal:
+          type: boolean
+          example: false
+          description: whether it's an internal transfer
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: deposit amount
+        state:
+          type: string
+          example: processing
+          description: deposit state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        network_protocol:
+          type:
+          - string
+          - 'null'
+          example: ethereum-erc20
+          description: network protocol of currency, null for internal withdraw
+        fee:
+          type:
+          - string
+          - 'null'
+          example: '0.0'
+          description: withdraw fee, null for internal withdraw
+        fee_currency:
+          type:
+          - string
+          - 'null'
+          example: eth
+          description: withdraw fee currency, null for internal withdraw
+        to_address:
+          type:
+          - string
+          - 'null'
+          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
+          description: to_address/email/mark bank account, null for internal withdraw
+        label:
+          type:
+          - string
+          - 'null'
+          example: My Web3 Wallet
+          description: label text on to_address/email or 7-digit bank branch code, null for internal withdraw
+        txid:
+          type:
+          - string
+          - 'null'
+          example: 957e1f1a1ba878ed0feebb2dd8a0cdbd9ed59ff501238fae199d8713f19c06f2
+          description: txid, null for internal withdraw
+        to:
+          type:
+          - string
+          - 'null'
+          example: member@maicoin.com
+          description: email/address, null for external withdraw
+      required:
+      - sn
+      - is_internal
+      - currency
+      - amount
+      - state
+      - created_at
+      - network_protocol
+      - fee
+      - fee_currency
+      - to_address
+      - label
+      - txid
+      - to
+      description: External_V3_Entities_FundTransactions_Withdrawal model
+    postApiV3Withdrawal:
+      type: object
+      properties:
+        withdraw_address_uuid:
+          type: string
+          description: unique withdraw address id, check GET /api/v3/withdraw_addresses for available withdraw addresses
+          example: 508c9af6-ccc1-4122-b38f-a407e3bac96c
+        amount:
+          type: string
+          description: withdraw amount
+          example: '0.019'
+      required:
+      - withdraw_address_uuid
+      - amount
+      description: Submit a crypto withdrawal. IP whitelist for api token is required.
+    External_V3_Entities_FundTransactions_Reward:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique reward id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: reward amount
+        state:
+          type: string
+          example: processing
+          description: reward state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        type:
+          type: string
+          example: airdrop_reward
+          description: reward type
+        note:
+          type: string
+          example: 2018-11-13 Holding Reward
+          description: reward description
+        to_sn:
+          type: string
+          example: s1-example
+          description: reward sub account serial number
+      required:
+      - sn
+      - currency
+      - amount
+      - state
+      - created_at
+      - type
+      - note
+      - to_sn
+      description: External_V3_Entities_FundTransactions_Reward model
+    External_V2_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 4000
+              description: Error code
+            message:
+              type: string
+              example: Resource not found
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: External_V2_Entities_Errors_ResourceNotFound model
+    postApiV3WalletMTransfer:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: unique composite currency id
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+          example: eth
+        amount:
+          type: string
+          description: transfer amount
+          example: '0.019'
+        side:
+          type: string
+          description: inbound or outbound transfers
+          enum:
+          - in
+          - out
+          example: in
+      required:
+      - currency
+      - amount
+      - side
+      description: make spot wallet <-> m wallet transfer
+    External_V3_Entities_Withdrawal:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18022603540001'
+          description: unique withdraw id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        network_protocol:
+          type: string
+          example: tron-trc20
+          description: network protocol of currency, null for internal_transfer
+        amount:
+          type: string
+          example: '0.019'
+          description: withdraw amount
+        fee:
+          type: string
+          example: '0.0'
+          description: withdraw fee
+        fee_currency:
+          type: string
+          example: usdt
+          description: withdraw fee currency
+        to_address:
+          type: string
+          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
+          description: to_address/email/mark bank account
+        label:
+          type: string
+          example: My Web3 Wallet
+          description: label text on to_address/email or 7-digit bank branch code
+        txid:
+          type:
+          - string
+          - 'null'
+          example: 957e1f1a1ba878ed0feebb2dd8a0cdbd9ed59ff501238fae199d8713f19c06f2
+          description: txid/null, null for internal transaction, fiat withdrawal or unconfirmed crypto withdrawal
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        state:
+          type: string
+          example: processing
+          description: state, processing/failed/canceled/done
+        transaction_type:
+          type: string
+          example: external
+          description: transaction type, external/internal
+      required:
+      - uuid
+      - currency
+      - network_protocol
+      - amount
+      - fee
+      - fee_currency
+      - to_address
+      - label
+      - txid
+      - created_at
+      - state
+      - transaction_type
+      description: External_V3_Entities_Withdrawal model
+    External_V3_Entities_FundTransactions_Source:
+      type: object
+      properties:
+        platform:
+          type: string
+          example: max
+          description: source platform
+        sn:
+          type: string
+          example: s1-example
+          description: source account serial number
+        wallet_type:
+          type: string
+          example: m
+          description: spot wallet or m-wallet
+      required:
+      - platform
+      - sn
+      - wallet_type
+    External_V3_Entities_InternalTransfers_Reward:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18032011380001'
+          description: unique internal transfer id
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        type:
+          type: string
+          example: airdrop_reward
+          description: reward type
+        note:
+          type: string
+          example: 2018-11-13 Holding Reward
+          description: reward description
+      required:
+      - uuid
+      - currency
+      - amount
+      - created_at
+      - type
+      - note
+      description: External_V3_Entities_InternalTransfers_Reward model
+    External_V2_Entities_Errors_DepositBySnNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 2013
+              description: Error code
+            message:
+              type: string
+              example: Deposit##uuid=2305090002283160563 doesn't exist.
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: External_V2_Entities_Errors_DepositBySnNotFound model
+    External_V3_Entities_FundTransactions_Transfer:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique transfer id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        state:
+          type: string
+          example: processing
+          description: transfer state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        from:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Source'
+          description: from source information
+        to:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Source'
+          description: to source information
+      required:
+      - sn
+      - currency
+      - amount
+      - state
+      - created_at
+      - from
+      - to
+      description: External_V3_Entities_FundTransactions_Transfer model
+    Shared_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 404
+              description: Error code
+            message:
+              type: string
+              example: 找不到該資源
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_ResourceNotFound model
+    Shared_Entities_Errors_Creation:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 4002
+              description: Error code
+            message:
+              type: string
+              example: You don't have permission to perform this operation, please upgrade your account.
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_Creation model
+    postApiV3WithdrawalTwd:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: withdraw amount
+          example: '100'
+      required:
+      - amount
+      description: Submit twd withdrawal to verified bank account. IP whitelist for api token is required.
+    External_V3_Entities_InternalTransfers_Transfer:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18032011380001'
+          description: unique internal transfer id
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        from:
+          type: string
+          example: pr***@***.com
+          description: email/mark email
+        to:
+          type: string
+          example: member@maicoin.com
+          description: email/address
+        state:
+          type: string
+          example: processing
+          description: state, processing/failed/canceled/done
+      required:
+      - uuid
+      - currency
+      - amount
+      - created_at
+      - from
+      - to
+      - state
+      description: External_V3_Entities_InternalTransfers_Transfer model
+    External_V3_Entities_BorrowingTransfer:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '210407080800050666'
+          description: serial number
+        side:
+          type: string
+          example: in
+          description: in or out
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        state:
+          type: string
+          example: processing
+          description: state, processing/failed/canceled/done
+      required:
+      - sn
+      - side
+      - currency
+      - amount
+      - created_at
+      - state
+      description: External_V3_Entities_BorrowingTransfer model
