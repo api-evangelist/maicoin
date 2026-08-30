@@ -33,6 +33,17 @@ tags:
 - Digital Assets
 - Exchange
 - Trading
+- Financial-Services
+- Market Data
+- Blockchain
+- Taiwan
+- WebSocket
+tags_raw:
+- Company
+- Cryptocurrency
+- Digital Assets
+- Exchange
+- Trading
 - Financial Services
 - Market Data
 - Blockchain
@@ -57,6 +68,11 @@ apis:
   - WebSocket
   - Streaming
   - Market Data
+  - Real-Time
+  tags_raw:
+  - WebSocket
+  - Streaming
+  - Market Data
   - Real Time
   properties:
   - type: Documentation
@@ -70,6 +86,8 @@ apis:
   humanURL: https://status-max.maicoin.com/
   baseURL: https://status-api-max.maicoin.com
   tags:
+  - Status
+  tags_raw:
   - Status
   - Operations
   properties:
@@ -165,6 +183,8 @@ apis:
   humanURL: https://campaign.maicoin.com/en/api-document
   baseURL: https://max-api.maicoin.com
   tags:
+  - Wallets
+  tags_raw:
   - Wallet
   properties:
   - type: OpenAPI
