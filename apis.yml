@@ -20,6 +20,21 @@ deliveryModel:
   - pricing
   generated: '2026-08-28'
   method: derived
+accessModel:
+  pricing: free
+  onboarding: self-serve
+  trial: false
+  try_now: true
+  public: false
+  label: Free · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  - rate-limits
+  - security
+  generated: '2026-09-03'
+  method: derived
 image: https://cdn.prod.website-files.com/61c42c1d462b6844a0915d9b/6a7160b6139bc8cdd5e3cf27_logo_MAX.png
 url: https://raw.githubusercontent.com/api-evangelist/maicoin/refs/heads/main/apis.yml
 x-type: company
