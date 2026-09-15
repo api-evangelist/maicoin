@@ -70,13 +70,12 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 apis:
-- aid: maicoin-max-websocket
+- aid: maicoin:maicoin-max-websocket
   name: MAX Exchange WebSocket API
-  description: >-
-    Real-time streaming service for MAX Exchange. Public channels cover order book (book), trade, ticker,
-    kline, market_status and m-wallet pool_quota; private channels stream order snapshots/updates, trade
-    snapshots/updates, account balance updates and m-wallet order/trade/ad_ratio/borrowing events after
-    HMAC-SHA256 nonce authentication.
+  description: Real-time streaming service for MAX Exchange. Public channels cover order book (book),
+    trade, ticker, kline, market_status and m-wallet pool_quota; private channels stream order snapshots/updates,
+    trade snapshots/updates, account balance updates and m-wallet order/trade/ad_ratio/borrowing events
+    after HMAC-SHA256 nonce authentication.
   humanURL: https://maicoin.github.io/max-websocket-docs/
   baseURL: wss://max-stream.maicoin.com/ws
   tags:
@@ -92,10 +91,9 @@ apis:
   properties:
   - type: Documentation
     url: https://maicoin.github.io/max-websocket-docs/
-- aid: maicoin-max-status
+- aid: maicoin:maicoin-max-status
   name: MAX System Status API
-  description: >-
-    Unauthenticated system status endpoint reporting whether the MAX API is online or in maintenance,
+  description: Unauthenticated system status endpoint reporting whether the MAX API is online or in maintenance,
     with an ISO 8601 last_changed_at timestamp. Documented in the MAX V3 API reference; status updates
     may lag by up to 30 seconds.
   humanURL: https://status-max.maicoin.com/
