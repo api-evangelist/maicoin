@@ -1,0 +1,32 @@
+{
+  "provider": "maicoin",
+  "sources": [
+    "_original/maicoin-max-v3-openapi.json"
+  ],
+  "outputs": [
+    "maicoin-convert-api-openapi.yml",
+    "maicoin-order-api-openapi.yml",
+    "maicoin-public-api-openapi.yml",
+    "maicoin-trade-api-openapi.yml",
+    "maicoin-transaction-api-openapi.yml",
+    "maicoin-user-api-openapi.yml",
+    "maicoin-wallet-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "maicoin-max-v3-openapi.json: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "maicoin-convert-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "maicoin-order-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "maicoin-public-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "maicoin-trade-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "maicoin-transaction-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "maicoin-user-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "maicoin-wallet-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
