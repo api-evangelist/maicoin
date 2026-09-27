@@ -858,68 +858,6 @@ paths:
       operationId: getApiV3DepositAddress
 components:
   schemas:
-    External_V3_Entities_Account:
-      type: object
-      properties:
-        currency:
-          type: string
-          example: twd
-          description: currency id, e.g. twd, btc, ...
-        balance:
-          type: string
-          example: '100000.0'
-          description: available balance
-        locked:
-          type: string
-          example: '5566.0'
-          description: locked funds
-        staked:
-          type:
-          - string
-          - 'null'
-          example: '0.0'
-          description: staked funds
-        principal:
-          type: string
-          example: '0.1'
-          description: debt principal, only return this info when api requests with m-wallet
-        interest:
-          type: string
-          example: '0.001'
-          description: debt interest, only return this info when api requests with m-wallet
-      required:
-      - currency
-      - balance
-      - locked
-      - staked
-      description: External_V3_Entities_Account model
-    B2b_V2_Entities_PaymentAddress:
-      type: object
-      properties:
-        currency:
-          type: string
-          example: usdt
-          description: currency id
-        network_protocol:
-          type: string
-          example: tron-trc20
-          description: network protocol of currency
-        currency_version:
-          type: string
-          example: trc20usdt
-          description: currency version
-        address:
-          type:
-          - string
-          - 'null'
-          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
-          description: deposit address, nil when generating or deposit suspended
-      required:
-      - currency
-      - network_protocol
-      - currency_version
-      - address
-      description: B2b_V2_Entities_PaymentAddress model
     External_V3_Entities_ForcedLiquidation:
       type: object
       properties:
@@ -957,37 +895,26 @@ components:
       - fee
       - fee_currency
       - repayment
-    Shared_Entities_Error:
+    postApiV3WalletMLoan:
       type: object
       properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 4000
-              description: Error code, 1001(invalid paramter)/4000(resource not found)/etc...
-            message:
-              type: string
-              example: Resource not found
-              description: Error message
-            info:
-              type: object
-              example:
-                limit: '0.0'
-              description: Error extra info
-          required:
-          - code
-          - message
+        currency:
+          type: string
+          description: unique composite currency id
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+          example: eth
+        amount:
+          type: string
+          description: loan amount
+          example: '0.019'
       required:
-      - success
-      - error
-      description: Shared_Entities_Error model
+      - currency
+      - amount
+      description: submit loan
     External_V3_Entities_LiquidationDetail:
       type: object
       properties:
@@ -1031,26 +958,206 @@ components:
       - repayments
       - liquidations
       description: External_V3_Entities_LiquidationDetail model
-    External_V3_Entities_AdRatio:
+    External_V3_Entities_Liquidation:
       type: object
       properties:
+        sn:
+          type: string
+          example: '210407080800050666'
+          description: serial number
         ad_ratio:
           type: string
-          example: '1.21'
-          description: ad ratio
-        asset_in_usdt:
+          example: '1.2'
+          description: ad ratio before liquidation
+        expected_ad_ratio:
           type: string
-          example: '2639.98128484'
-          description: asset in usdt
-        debt_in_usdt:
+          example: '1.5'
+          description: expected ad ratio after liquidation
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        state:
           type: string
-          example: '2165.54482641'
-          description: debt in usdt
+          example: liquidated
+          description: liquidation state, processing / liquidated
       required:
+      - sn
       - ad_ratio
-      - asset_in_usdt
-      - debt_in_usdt
-      description: External_V3_Entities_AdRatio model
+      - expected_ad_ratio
+      - created_at
+      - state
+      description: External_V3_Entities_Liquidation model
+    postApiV3WalletMRepayment:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: unique composite currency id
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+          example: eth
+        amount:
+          type: string
+          description: repay amount
+          example: '0.15'
+      required:
+      - currency
+      - amount
+      description: submit repayment
+    External_V3_Entities_Repayment:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.15'
+          description: total repay amount
+        principal:
+          type: string
+          example: '0.1'
+          description: principal amount
+        interest:
+          type: string
+          example: '0.05'
+          description: interest amount
+        state:
+          type: string
+          example: confirmed
+          description: current state
+      required:
+      - currency
+      - amount
+      - principal
+      - interest
+      - state
+    Shared_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 404
+              description: Error code
+            message:
+              type: string
+              example: 找不到該資源
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_ResourceNotFound model
+    Shared_Entities_Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 4000
+              description: Error code, 1001(invalid paramter)/4000(resource not found)/etc...
+            message:
+              type: string
+              example: Resource not found
+              description: Error message
+            info:
+              type: object
+              example:
+                limit: '0.0'
+              description: Error extra info
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Error model
+    External_V3_Entities_Debt:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '210407080800050666'
+          description: serial number
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        state:
+          type: string
+          example: confirmed
+          description: current state
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        interest_rate:
+          type: string
+          example: '0.001'
+          description: interest rate
+      required:
+      - sn
+      - currency
+      - amount
+      - state
+      - created_at
+      - interest_rate
+      description: External_V3_Entities_Debt model
+    B2b_V2_Entities_PaymentAddress:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        network_protocol:
+          type: string
+          example: tron-trc20
+          description: network protocol of currency
+        currency_version:
+          type: string
+          example: trc20usdt
+          description: currency version
+        address:
+          type:
+          - string
+          - 'null'
+          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
+          description: deposit address, nil when generating or deposit suspended
+      required:
+      - currency
+      - network_protocol
+      - currency_version
+      - address
+      description: B2b_V2_Entities_PaymentAddress model
     External_V3_Entities_FundSource:
       type: object
       properties:
@@ -1107,123 +1214,6 @@ components:
       - is_internal
       - network_congested
       description: External_V3_Entities_FundSource model
-    External_V3_Entities_Interest:
-      type: object
-      properties:
-        currency:
-          type: string
-          example: eth
-          description: currency id
-        amount:
-          type: string
-          example: '0.003'
-          description: interest amount
-        interest_rate:
-          type: string
-          example: '0.001'
-          description: interest rate
-        principal:
-          type: string
-          example: '3'
-          description: principal amount
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960123
-          description: created timestamp (millisecond)
-      required:
-      - currency
-      - amount
-      - interest_rate
-      - principal
-      - created_at
-      description: External_V3_Entities_Interest model
-    Shared_Entities_Errors_ResourceNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 404
-              description: Error code
-            message:
-              type: string
-              example: 找不到該資源
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_ResourceNotFound model
-    External_V3_Entities_Repayment:
-      type: object
-      properties:
-        currency:
-          type: string
-          example: eth
-          description: currency id
-        amount:
-          type: string
-          example: '0.15'
-          description: total repay amount
-        principal:
-          type: string
-          example: '0.1'
-          description: principal amount
-        interest:
-          type: string
-          example: '0.05'
-          description: interest amount
-        state:
-          type: string
-          example: confirmed
-          description: current state
-      required:
-      - currency
-      - amount
-      - principal
-      - interest
-      - state
-    External_V3_Entities_Liquidation:
-      type: object
-      properties:
-        sn:
-          type: string
-          example: '210407080800050666'
-          description: serial number
-        ad_ratio:
-          type: string
-          example: '1.2'
-          description: ad ratio before liquidation
-        expected_ad_ratio:
-          type: string
-          example: '1.5'
-          description: expected ad ratio after liquidation
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: created timestamp (millisecond)
-        state:
-          type: string
-          example: liquidated
-          description: liquidation state, processing / liquidated
-      required:
-      - sn
-      - ad_ratio
-      - expected_ad_ratio
-      - created_at
-      - state
-      description: External_V3_Entities_Liquidation model
     External_V3_Entities_ManualRepayment:
       type: object
       properties:
@@ -1265,79 +1255,89 @@ components:
       - sn
       - created_at
       description: External_V3_Entities_ManualRepayment model
-    External_V3_Entities_Debt:
+    External_V3_Entities_AdRatio:
       type: object
       properties:
-        sn:
+        ad_ratio:
           type: string
-          example: '210407080800050666'
-          description: serial number
+          example: '1.21'
+          description: ad ratio
+        asset_in_usdt:
+          type: string
+          example: '2639.98128484'
+          description: asset in usdt
+        debt_in_usdt:
+          type: string
+          example: '2165.54482641'
+          description: debt in usdt
+      required:
+      - ad_ratio
+      - asset_in_usdt
+      - debt_in_usdt
+      description: External_V3_Entities_AdRatio model
+    External_V3_Entities_Account:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: twd
+          description: currency id, e.g. twd, btc, ...
+        balance:
+          type: string
+          example: '100000.0'
+          description: available balance
+        locked:
+          type: string
+          example: '5566.0'
+          description: locked funds
+        staked:
+          type:
+          - string
+          - 'null'
+          example: '0.0'
+          description: staked funds
+        principal:
+          type: string
+          example: '0.1'
+          description: debt principal, only return this info when api requests with m-wallet
+        interest:
+          type: string
+          example: '0.001'
+          description: debt interest, only return this info when api requests with m-wallet
+      required:
+      - currency
+      - balance
+      - locked
+      - staked
+      description: External_V3_Entities_Account model
+    External_V3_Entities_Interest:
+      type: object
+      properties:
         currency:
           type: string
           example: eth
           description: currency id
         amount:
           type: string
-          example: '0.019'
-          description: transfer amount
-        state:
-          type: string
-          example: confirmed
-          description: current state
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: created timestamp (millisecond)
+          example: '0.003'
+          description: interest amount
         interest_rate:
           type: string
           example: '0.001'
           description: interest rate
+        principal:
+          type: string
+          example: '3'
+          description: principal amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
       required:
-      - sn
       - currency
       - amount
-      - state
-      - created_at
       - interest_rate
-      description: External_V3_Entities_Debt model
-    postApiV3WalletMLoan:
-      type: object
-      properties:
-        currency:
-          type: string
-          description: unique composite currency id
-          enum:
-          - twd
-          - btc
-          - eth
-          - usdt
-          example: eth
-        amount:
-          type: string
-          description: loan amount
-          example: '0.019'
-      required:
-      - currency
-      - amount
-      description: submit loan
-    postApiV3WalletMRepayment:
-      type: object
-      properties:
-        currency:
-          type: string
-          description: unique composite currency id
-          enum:
-          - twd
-          - btc
-          - eth
-          - usdt
-          example: eth
-        amount:
-          type: string
-          description: repay amount
-          example: '0.15'
-      required:
-      - currency
-      - amount
-      description: submit repayment
+      - principal
+      - created_at
+      description: External_V3_Entities_Interest model

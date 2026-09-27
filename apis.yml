@@ -48,11 +48,12 @@ tags:
 - Digital Assets
 - Exchange
 - Trading
-- Financial-Services
+- Financial Services
 - Market Data
 - Blockchain
 - Taiwan
 - WebSocket
+- Real-Time
 tags_raw:
 - Company
 - Cryptocurrency
@@ -64,6 +65,8 @@ tags_raw:
 - Blockchain
 - Taiwan
 - WebSocket
+- Financial-Services
+- Real-Time
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com

@@ -220,57 +220,32 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    External_V3_Entities_ConvertOrder:
+    Shared_Entities_Errors_ResourceNotFound:
       type: object
       properties:
-        sn:
-          type: string
-          example: 6322d9bd-736b-4f19-b862-829e75cae1ce
-          description: serial number
-        from_currency:
-          type: string
-          example: btc
-          description: from currency
-        from_amount:
-          type: string
-          example: '0.01'
-          description: from currency amount
-        to_currency:
-          type: string
-          example: usdt
-          description: to currency
-        to_amount:
-          type: string
-          example: '289.13'
-          description: to currency amount (after fee deduction)
-        fee:
-          type: string
-          example: '0.87'
-          description: conversion fee
-        fee_currency:
-          type: string
-          example: usdt
-          description: fee currency (same as to_currency)
-        fee_in_twd:
-          type: string
-          example: '0.31'
-          description: fee in twd
-        created_at:
-          type: integer
-          format: int32
-          example: 1704937708
-          description: created timestamp (second)
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 404
+              description: Error code
+            message:
+              type: string
+              example: 找不到該資源
+              description: Error message
+          required:
+          - code
+          - message
       required:
-      - sn
-      - from_currency
-      - from_amount
-      - to_currency
-      - to_amount
-      - fee
-      - fee_currency
-      - fee_in_twd
-      - created_at
-      description: External_V3_Entities_ConvertOrder model
+      - success
+      - error
+      description: Shared_Entities_Errors_ResourceNotFound model
     Shared_Entities_Errors_Creation:
       type: object
       properties:
@@ -328,6 +303,57 @@ components:
       - success
       - error
       description: Shared_Entities_Error model
+    External_V3_Entities_ConvertOrder:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: 6322d9bd-736b-4f19-b862-829e75cae1ce
+          description: serial number
+        from_currency:
+          type: string
+          example: btc
+          description: from currency
+        from_amount:
+          type: string
+          example: '0.01'
+          description: from currency amount
+        to_currency:
+          type: string
+          example: usdt
+          description: to currency
+        to_amount:
+          type: string
+          example: '289.13'
+          description: to currency amount (after fee deduction)
+        fee:
+          type: string
+          example: '0.87'
+          description: conversion fee
+        fee_currency:
+          type: string
+          example: usdt
+          description: fee currency (same as to_currency)
+        fee_in_twd:
+          type: string
+          example: '0.31'
+          description: fee in twd
+        created_at:
+          type: integer
+          format: int32
+          example: 1704937708
+          description: created timestamp (second)
+      required:
+      - sn
+      - from_currency
+      - from_amount
+      - to_currency
+      - to_amount
+      - fee
+      - fee_currency
+      - fee_in_twd
+      - created_at
+      description: External_V3_Entities_ConvertOrder model
     postApiV3Convert:
       type: object
       properties:
@@ -459,29 +485,3 @@ components:
       - from_currency
       - to_currency
       description: Execute a convert (flash exchange) between two currencies
-    Shared_Entities_Errors_ResourceNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 404
-              description: Error code
-            message:
-              type: string
-              example: 找不到該資源
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_ResourceNotFound model

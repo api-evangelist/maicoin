@@ -612,59 +612,90 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    External_V3_Entities_Timestamp:
+    External_V3_Entities_Market:
+      type: object
+      properties:
+        id:
+          type: string
+          example: btctwd
+          description: unique market id, check /api/v3/markets for available markets
+        status:
+          type: string
+          example: active
+          description: market status
+        base_unit:
+          type: string
+          example: btc
+          description: base unit
+        base_unit_precision:
+          type: integer
+          format: int32
+          example: 5
+          description: fixed precision of base unit, can be negative, for example -3
+        min_base_amount:
+          type: number
+          format: float
+          example: 0.0015
+          description: minimum of base amount
+        quote_unit:
+          type: string
+          example: twd
+          description: quote unit
+        quote_unit_precision:
+          type: integer
+          format: int32
+          example: 1
+          description: fixed precision of quote unit
+        min_quote_amount:
+          type: number
+          format: float
+          example: 26.0
+          description: minimum of quote amount
+        m_wallet_supported:
+          type: boolean
+          example: false
+          description: m wallet supported
+      required:
+      - id
+      - status
+      - base_unit
+      - base_unit_precision
+      - min_base_amount
+      - quote_unit
+      - quote_unit_precision
+      - min_quote_amount
+      - m_wallet_supported
+      description: External_V3_Entities_Market model
+    External_V3_Entities_HistoricalIndexPrice:
       type: object
       properties:
         timestamp:
           type: integer
           format: int32
-          example: 1678766175
-          description: Unix epoch timestamp in seconds
-      required:
-      - timestamp
-      description: External_V3_Entities_Timestamp model
-    External_V3_Entities_PublicTrade:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-          example: 68444
-          description: trade id
+          example: 1644572610000
+          description: timestamp (millisecond)
         price:
           type: string
-          example: '21499.0'
-          description: strike price
-        volume:
-          type: string
-          example: '0.2658'
-          description: traded volume
-        funds:
-          type: string
-          example: '5714.4'
-          description: total traded amount
-        market:
-          type: string
-          example: ethtwd
-          description: market id
-        side:
-          type: string
-          example: bid
-          description: '''bid'' or ''ask''; side of maker for public trades'
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: created timestamp (millisecond)
+          example: '43497.56666666'
+          description: index price
       required:
-      - id
+      - timestamp
       - price
-      - volume
-      - funds
-      - market
-      - side
-      - created_at
-      description: External_V3_Entities_PublicTrade model
+      description: External_V3_Entities_HistoricalIndexPrice model
+    External_V3_Entities_Staking:
+      type: object
+      properties:
+        stake_flag:
+          type: boolean
+          example: true
+          description: stake flag
+        unstake_flag:
+          type: boolean
+          example: false
+          description: unstake flag
+      required:
+      - stake_flag
+      - unstake_flag
     External_V3_Entities_Ticker:
       type: object
       properties:
@@ -736,142 +767,48 @@ components:
       - vol_in_btc
       - vol_in_quote
       description: External_V3_Entities_Ticker model
-    External_V3_Entities_Staking:
-      type: object
-      properties:
-        stake_flag:
-          type: boolean
-          example: true
-          description: stake flag
-        unstake_flag:
-          type: boolean
-          example: false
-          description: unstake flag
-      required:
-      - stake_flag
-      - unstake_flag
-    External_V3_Entities_Market:
+    External_V3_Entities_PublicTrade:
       type: object
       properties:
         id:
-          type: string
-          example: btctwd
-          description: unique market id, check /api/v3/markets for available markets
-        status:
-          type: string
-          example: active
-          description: market status
-        base_unit:
-          type: string
-          example: btc
-          description: base unit
-        base_unit_precision:
           type: integer
           format: int32
-          example: 5
-          description: fixed precision of base unit, can be negative, for example -3
-        min_base_amount:
-          type: number
-          format: float
-          example: 0.0015
-          description: minimum of base amount
-        quote_unit:
-          type: string
-          example: twd
-          description: quote unit
-        quote_unit_precision:
-          type: integer
-          format: int32
-          example: 1
-          description: fixed precision of quote unit
-        min_quote_amount:
-          type: number
-          format: float
-          example: 26.0
-          description: minimum of quote amount
-        m_wallet_supported:
-          type: boolean
-          example: false
-          description: m wallet supported
-      required:
-      - id
-      - status
-      - base_unit
-      - base_unit_precision
-      - min_base_amount
-      - quote_unit
-      - quote_unit_precision
-      - min_quote_amount
-      - m_wallet_supported
-      description: External_V3_Entities_Market model
-    External_V3_Entities_HistoricalIndexPrice:
-      type: object
-      properties:
-        timestamp:
-          type: integer
-          format: int32
-          example: 1644572610000
-          description: timestamp (millisecond)
+          example: 68444
+          description: trade id
         price:
           type: string
-          example: '43497.56666666'
-          description: index price
-      required:
-      - timestamp
-      - price
-      description: External_V3_Entities_HistoricalIndexPrice model
-    External_V3_Entities_Currencies:
-      type: object
-      properties:
-        currency:
+          example: '21499.0'
+          description: strike price
+        volume:
           type: string
-          example: usdt
-          description: unique currency id
-        type:
+          example: '0.2658'
+          description: traded volume
+        funds:
           type: string
-          example: crypto
-          description: currency type fiat or crypto
-        precision:
+          example: '5714.4'
+          description: total traded amount
+        market:
+          type: string
+          example: ethtwd
+          description: market id
+        side:
+          type: string
+          example: bid
+          description: '''bid'' or ''ask''; side of maker for public trades'
+        created_at:
           type: integer
           format: int32
-          example: 8
-          description: fixed precision of the currency
-        m_wallet_supported:
-          type: boolean
-          example: true
-          description: if support m_wallet
-        m_wallet_mortgageable:
-          type: boolean
-          example: true
-          description: currency is mortgageable or not
-        m_wallet_borrowable:
-          type: boolean
-          example: true
-          description: currency is borrowable or not
-        min_borrow_amount:
-          type: string
-          example: '0.001'
-          description: minimum borrowing amount
-        networks:
-          type: array
-          items:
-            $ref: '#/components/schemas/External_V3_Entities_Currency'
-          description: the network of this currency support
-        staking:
-          allOf:
-          - $ref: '#/components/schemas/External_V3_Entities_Staking'
-          description: can stake or not
+          example: 1521726960357
+          description: created timestamp (millisecond)
       required:
-      - currency
-      - type
-      - precision
-      - m_wallet_supported
-      - m_wallet_mortgageable
-      - m_wallet_borrowable
-      - min_borrow_amount
-      - networks
-      - staking
-      description: External_V3_Entities_Currencies model
+      - id
+      - price
+      - volume
+      - funds
+      - market
+      - side
+      - created_at
+      description: External_V3_Entities_PublicTrade model
     External_V3_Entities_Currency:
       type: object
       properties:
@@ -937,3 +874,66 @@ components:
       - withdrawal_enabled
       - deposit_enabled
       - need_memo
+    External_V3_Entities_Timestamp:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+          example: 1678766175
+          description: Unix epoch timestamp in seconds
+      required:
+      - timestamp
+      description: External_V3_Entities_Timestamp model
+    External_V3_Entities_Currencies:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: usdt
+          description: unique currency id
+        type:
+          type: string
+          example: crypto
+          description: currency type fiat or crypto
+        precision:
+          type: integer
+          format: int32
+          example: 8
+          description: fixed precision of the currency
+        m_wallet_supported:
+          type: boolean
+          example: true
+          description: if support m_wallet
+        m_wallet_mortgageable:
+          type: boolean
+          example: true
+          description: currency is mortgageable or not
+        m_wallet_borrowable:
+          type: boolean
+          example: true
+          description: currency is borrowable or not
+        min_borrow_amount:
+          type: string
+          example: '0.001'
+          description: minimum borrowing amount
+        networks:
+          type: array
+          items:
+            $ref: '#/components/schemas/External_V3_Entities_Currency'
+          description: the network of this currency support
+        staking:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_Staking'
+          description: can stake or not
+      required:
+      - currency
+      - type
+      - precision
+      - m_wallet_supported
+      - m_wallet_mortgageable
+      - m_wallet_borrowable
+      - min_borrow_amount
+      - networks
+      - staking
+      description: External_V3_Entities_Currencies model

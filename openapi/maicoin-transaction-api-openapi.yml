@@ -1326,535 +1326,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    External_V3_Entities_InternalTransfers_Reward:
-      type: object
-      properties:
-        uuid:
-          type: string
-          example: '18032011380001'
-          description: unique internal transfer id
-        currency:
-          type: string
-          example: eth
-          description: currency id
-        amount:
-          type: string
-          example: '0.019'
-          description: transfer amount
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: created timestamp (millisecond)
-        type:
-          type: string
-          example: airdrop_reward
-          description: reward type
-        note:
-          type: string
-          example: 2018-11-13 Holding Reward
-          description: reward description
-      required:
-      - uuid
-      - currency
-      - amount
-      - created_at
-      - type
-      - note
-      description: External_V3_Entities_InternalTransfers_Reward model
-    postApiV3Withdrawal:
-      type: object
-      properties:
-        withdraw_address_uuid:
-          type: string
-          description: unique withdraw address id, check GET /api/v3/withdraw_addresses for available withdraw addresses
-          example: 508c9af6-ccc1-4122-b38f-a407e3bac96c
-        amount:
-          type: string
-          description: withdraw amount
-          example: '0.019'
-      required:
-      - withdraw_address_uuid
-      - amount
-      description: Submit a crypto withdrawal. IP whitelist for api token is required.
-    External_V3_Entities_InternalTransfers_Transfer:
-      type: object
-      properties:
-        uuid:
-          type: string
-          example: '18032011380001'
-          description: unique internal transfer id
-        currency:
-          type: string
-          example: eth
-          description: currency id
-        amount:
-          type: string
-          example: '0.019'
-          description: transfer amount
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: created timestamp (millisecond)
-        from:
-          type: string
-          example: pr***@***.com
-          description: email/mark email
-        to:
-          type: string
-          example: member@maicoin.com
-          description: email/address
-        state:
-          type: string
-          example: processing
-          description: state, processing/failed/canceled/done
-      required:
-      - uuid
-      - currency
-      - amount
-      - created_at
-      - from
-      - to
-      - state
-      description: External_V3_Entities_InternalTransfers_Transfer model
-    External_V2_Entities_Errors_DepositBySnNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 2013
-              description: Error code
-            message:
-              type: string
-              example: Deposit##uuid=2305090002283160563 doesn't exist.
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: External_V2_Entities_Errors_DepositBySnNotFound model
-    postApiV3WalletMTransfer:
-      type: object
-      properties:
-        currency:
-          type: string
-          description: unique composite currency id
-          enum:
-          - twd
-          - btc
-          - eth
-          - usdt
-          example: eth
-        amount:
-          type: string
-          description: transfer amount
-          example: '0.019'
-        side:
-          type: string
-          description: inbound or outbound transfers
-          enum:
-          - in
-          - out
-          example: in
-      required:
-      - currency
-      - amount
-      - side
-      description: make spot wallet <-> m wallet transfer
-    External_V3_Entities_FundTransactions_Reward:
-      type: object
-      properties:
-        sn:
-          type: string
-          example: '18022603540001'
-          description: unique reward id
-        currency:
-          type: string
-          example: usdt
-          description: currency id
-        amount:
-          type: string
-          example: '0.019'
-          description: reward amount
-        state:
-          type: string
-          example: processing
-          description: reward state, processing/failed/canceled/done
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960123
-          description: created timestamp (millisecond)
-        type:
-          type: string
-          example: airdrop_reward
-          description: reward type
-        note:
-          type: string
-          example: 2018-11-13 Holding Reward
-          description: reward description
-        to_sn:
-          type: string
-          example: s1-example
-          description: reward sub account serial number
-      required:
-      - sn
-      - currency
-      - amount
-      - state
-      - created_at
-      - type
-      - note
-      - to_sn
-      description: External_V3_Entities_FundTransactions_Reward model
-    Shared_Entities_Errors_Creation:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 4002
-              description: Error code
-            message:
-              type: string
-              example: You don't have permission to perform this operation, please upgrade your account.
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_Creation model
-    External_V3_Entities_Deposit:
-      type: object
-      properties:
-        uuid:
-          type: string
-          example: '18022603540001'
-          description: unique deposit id
-        currency:
-          type: string
-          example: usdt
-          description: currency id
-        network_protocol:
-          type: string
-          example: ethereum-erc20
-          description: network protocol of currency
-        amount:
-          type: string
-          example: '0.019'
-          description: deposit amount
-        to_address:
-          type: string
-          example: '0x5c7d23d516f120d322fc7b116386b7e491739138'
-          description: to_address/virtual account number
-        txid:
-          type: string
-          example: '0x8daa98e07886985bd6a142cd81b83582d6085f7eb931dc4984c18c84f2a845e0'
-          description: unique transaction id
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: received timestamp (millisecond)
-        confirmations:
-          type: integer
-          format: int32
-          example: 64
-          description: confirmations for crypto currency
-        state:
-          type: string
-          example: pending
-          description: deposit state, processing/failed/canceled/done
-        state_reason:
-          type: string
-          example: ''
-          description: state reason, blank if no further action needed
-      required:
-      - uuid
-      - currency
-      - network_protocol
-      - amount
-      - to_address
-      - txid
-      - created_at
-      - confirmations
-      - state
-      - state_reason
-      description: External_V3_Entities_Deposit model
-    External_V3_Entities_BorrowingTransfer:
-      type: object
-      properties:
-        sn:
-          type: string
-          example: '210407080800050666'
-          description: serial number
-        side:
-          type: string
-          example: in
-          description: in or out
-        currency:
-          type: string
-          example: eth
-          description: currency id
-        amount:
-          type: string
-          example: '0.019'
-          description: transfer amount
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960123
-          description: created timestamp (millisecond)
-        state:
-          type: string
-          example: processing
-          description: state, processing/failed/canceled/done
-      required:
-      - sn
-      - side
-      - currency
-      - amount
-      - created_at
-      - state
-      description: External_V3_Entities_BorrowingTransfer model
-    External_V3_Entities_FundTransactions_Deposit:
-      type: object
-      properties:
-        sn:
-          type: string
-          example: '18022603540001'
-          description: unique deposit id
-        is_internal:
-          type: boolean
-          example: false
-          description: whether it's an internal transfer
-        currency:
-          type: string
-          example: usdt
-          description: currency id
-        amount:
-          type: string
-          example: '0.019'
-          description: deposit amount
-        state:
-          type: string
-          example: processing
-          description: deposit state, processing/failed/canceled/done
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960123
-          description: created timestamp (millisecond)
-        network_protocol:
-          type:
-          - string
-          - 'null'
-          example: ethereum-erc20
-          description: network protocol of currency, null for internal deposit
-        to_address:
-          type:
-          - string
-          - 'null'
-          example: '0x5c7d23d516f120d322fc7b116386b7e491739138'
-          description: to_address/virtual account number, null for internal deposit
-        txid:
-          type:
-          - string
-          - 'null'
-          example: 0x8daa98e07886985bd6a142cd81b83582d6085f7eb931dc4984c18c84f2a845e0, null for internal deposit
-          description: unique transaction id
-        from:
-          type:
-          - string
-          - 'null'
-          example: pr***@***.com
-          description: from member in email, null for external deposit
-      required:
-      - sn
-      - is_internal
-      - currency
-      - amount
-      - state
-      - created_at
-      - network_protocol
-      - to_address
-      - txid
-      - from
-      description: External_V3_Entities_FundTransactions_Deposit model
-    Shared_Entities_Errors_ResourceNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 404
-              description: Error code
-            message:
-              type: string
-              example: 找不到該資源
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_ResourceNotFound model
-    External_V3_Entities_FundTransactions_Transfer:
-      type: object
-      properties:
-        sn:
-          type: string
-          example: '18022603540001'
-          description: unique transfer id
-        currency:
-          type: string
-          example: usdt
-          description: currency id
-        amount:
-          type: string
-          example: '0.019'
-          description: transfer amount
-        state:
-          type: string
-          example: processing
-          description: transfer state, processing/failed/canceled/done
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960123
-          description: created timestamp (millisecond)
-        from:
-          allOf:
-          - $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Source'
-          description: from source information
-        to:
-          allOf:
-          - $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Source'
-          description: to source information
-      required:
-      - sn
-      - currency
-      - amount
-      - state
-      - created_at
-      - from
-      - to
-      description: External_V3_Entities_FundTransactions_Transfer model
-    External_V3_Entities_FundTransactions_Source:
-      type: object
-      properties:
-        platform:
-          type: string
-          example: max
-          description: source platform
-        sn:
-          type: string
-          example: s1-example
-          description: source account serial number
-        wallet_type:
-          type: string
-          example: m
-          description: spot wallet or m-wallet
-      required:
-      - platform
-      - sn
-      - wallet_type
-    External_V3_Entities_Withdrawal:
-      type: object
-      properties:
-        uuid:
-          type: string
-          example: '18022603540001'
-          description: unique withdraw id
-        currency:
-          type: string
-          example: usdt
-          description: currency id
-        network_protocol:
-          type: string
-          example: tron-trc20
-          description: network protocol of currency, null for internal_transfer
-        amount:
-          type: string
-          example: '0.019'
-          description: withdraw amount
-        fee:
-          type: string
-          example: '0.0'
-          description: withdraw fee
-        fee_currency:
-          type: string
-          example: usdt
-          description: withdraw fee currency
-        to_address:
-          type: string
-          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
-          description: to_address/email/mark bank account
-        label:
-          type: string
-          example: My Web3 Wallet
-          description: label text on to_address/email or 7-digit bank branch code
-        txid:
-          type:
-          - string
-          - 'null'
-          example: 957e1f1a1ba878ed0feebb2dd8a0cdbd9ed59ff501238fae199d8713f19c06f2
-          description: txid/null, null for internal transaction, fiat withdrawal or unconfirmed crypto withdrawal
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960357
-          description: created timestamp (millisecond)
-        state:
-          type: string
-          example: processing
-          description: state, processing/failed/canceled/done
-        transaction_type:
-          type: string
-          example: external
-          description: transaction type, external/internal
-      required:
-      - uuid
-      - currency
-      - network_protocol
-      - amount
-      - fee
-      - fee_currency
-      - to_address
-      - label
-      - txid
-      - created_at
-      - state
-      - transaction_type
-      description: External_V3_Entities_Withdrawal model
     External_V3_Entities_FundTransactions_Withdrawal:
       type: object
       properties:
@@ -1940,6 +1411,177 @@ components:
       - txid
       - to
       description: External_V3_Entities_FundTransactions_Withdrawal model
+    External_V3_Entities_InternalTransfers_Transfer:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18032011380001'
+          description: unique internal transfer id
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        from:
+          type: string
+          example: pr***@***.com
+          description: email/mark email
+        to:
+          type: string
+          example: member@maicoin.com
+          description: email/address
+        state:
+          type: string
+          example: processing
+          description: state, processing/failed/canceled/done
+      required:
+      - uuid
+      - currency
+      - amount
+      - created_at
+      - from
+      - to
+      - state
+      description: External_V3_Entities_InternalTransfers_Transfer model
+    External_V3_Entities_Withdrawal:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18022603540001'
+          description: unique withdraw id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        network_protocol:
+          type: string
+          example: tron-trc20
+          description: network protocol of currency, null for internal_transfer
+        amount:
+          type: string
+          example: '0.019'
+          description: withdraw amount
+        fee:
+          type: string
+          example: '0.0'
+          description: withdraw fee
+        fee_currency:
+          type: string
+          example: usdt
+          description: withdraw fee currency
+        to_address:
+          type: string
+          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
+          description: to_address/email/mark bank account
+        label:
+          type: string
+          example: My Web3 Wallet
+          description: label text on to_address/email or 7-digit bank branch code
+        txid:
+          type:
+          - string
+          - 'null'
+          example: 957e1f1a1ba878ed0feebb2dd8a0cdbd9ed59ff501238fae199d8713f19c06f2
+          description: txid/null, null for internal transaction, fiat withdrawal or unconfirmed crypto withdrawal
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        state:
+          type: string
+          example: processing
+          description: state, processing/failed/canceled/done
+        transaction_type:
+          type: string
+          example: external
+          description: transaction type, external/internal
+      required:
+      - uuid
+      - currency
+      - network_protocol
+      - amount
+      - fee
+      - fee_currency
+      - to_address
+      - label
+      - txid
+      - created_at
+      - state
+      - transaction_type
+      description: External_V3_Entities_Withdrawal model
+    postApiV3WithdrawalTwd:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: withdraw amount
+          example: '100'
+      required:
+      - amount
+      description: Submit twd withdrawal to verified bank account. IP whitelist for api token is required.
+    Shared_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 404
+              description: Error code
+            message:
+              type: string
+              example: 找不到該資源
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_ResourceNotFound model
+    Shared_Entities_Errors_Creation:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 4002
+              description: Error code
+            message:
+              type: string
+              example: You don't have permission to perform this operation, please upgrade your account.
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_Creation model
     External_V2_Entities_Errors_ResourceNotFound:
       type: object
       properties:
@@ -1966,13 +1608,371 @@ components:
       - success
       - error
       description: External_V2_Entities_Errors_ResourceNotFound model
-    postApiV3WithdrawalTwd:
+    External_V3_Entities_FundTransactions_Transfer:
       type: object
       properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique transfer id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        state:
+          type: string
+          example: processing
+          description: transfer state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        from:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Source'
+          description: from source information
+        to:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_FundTransactions_Source'
+          description: to source information
+      required:
+      - sn
+      - currency
+      - amount
+      - state
+      - created_at
+      - from
+      - to
+      description: External_V3_Entities_FundTransactions_Transfer model
+    postApiV3Withdrawal:
+      type: object
+      properties:
+        withdraw_address_uuid:
+          type: string
+          description: unique withdraw address id, check GET /api/v3/withdraw_addresses for available withdraw addresses
+          example: 508c9af6-ccc1-4122-b38f-a407e3bac96c
         amount:
           type: string
           description: withdraw amount
-          example: '100'
+          example: '0.019'
       required:
+      - withdraw_address_uuid
       - amount
-      description: Submit twd withdrawal to verified bank account. IP whitelist for api token is required.
+      description: Submit a crypto withdrawal. IP whitelist for api token is required.
+    External_V3_Entities_InternalTransfers_Reward:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18032011380001'
+          description: unique internal transfer id
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        type:
+          type: string
+          example: airdrop_reward
+          description: reward type
+        note:
+          type: string
+          example: 2018-11-13 Holding Reward
+          description: reward description
+      required:
+      - uuid
+      - currency
+      - amount
+      - created_at
+      - type
+      - note
+      description: External_V3_Entities_InternalTransfers_Reward model
+    External_V3_Entities_Deposit:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: '18022603540001'
+          description: unique deposit id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        network_protocol:
+          type: string
+          example: ethereum-erc20
+          description: network protocol of currency
+        amount:
+          type: string
+          example: '0.019'
+          description: deposit amount
+        to_address:
+          type: string
+          example: '0x5c7d23d516f120d322fc7b116386b7e491739138'
+          description: to_address/virtual account number
+        txid:
+          type: string
+          example: '0x8daa98e07886985bd6a142cd81b83582d6085f7eb931dc4984c18c84f2a845e0'
+          description: unique transaction id
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: received timestamp (millisecond)
+        confirmations:
+          type: integer
+          format: int32
+          example: 64
+          description: confirmations for crypto currency
+        state:
+          type: string
+          example: pending
+          description: deposit state, processing/failed/canceled/done
+        state_reason:
+          type: string
+          example: ''
+          description: state reason, blank if no further action needed
+      required:
+      - uuid
+      - currency
+      - network_protocol
+      - amount
+      - to_address
+      - txid
+      - created_at
+      - confirmations
+      - state
+      - state_reason
+      description: External_V3_Entities_Deposit model
+    External_V3_Entities_FundTransactions_Source:
+      type: object
+      properties:
+        platform:
+          type: string
+          example: max
+          description: source platform
+        sn:
+          type: string
+          example: s1-example
+          description: source account serial number
+        wallet_type:
+          type: string
+          example: m
+          description: spot wallet or m-wallet
+      required:
+      - platform
+      - sn
+      - wallet_type
+    External_V3_Entities_FundTransactions_Reward:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique reward id
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: reward amount
+        state:
+          type: string
+          example: processing
+          description: reward state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        type:
+          type: string
+          example: airdrop_reward
+          description: reward type
+        note:
+          type: string
+          example: 2018-11-13 Holding Reward
+          description: reward description
+        to_sn:
+          type: string
+          example: s1-example
+          description: reward sub account serial number
+      required:
+      - sn
+      - currency
+      - amount
+      - state
+      - created_at
+      - type
+      - note
+      - to_sn
+      description: External_V3_Entities_FundTransactions_Reward model
+    External_V3_Entities_FundTransactions_Deposit:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '18022603540001'
+          description: unique deposit id
+        is_internal:
+          type: boolean
+          example: false
+          description: whether it's an internal transfer
+        currency:
+          type: string
+          example: usdt
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: deposit amount
+        state:
+          type: string
+          example: processing
+          description: deposit state, processing/failed/canceled/done
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        network_protocol:
+          type:
+          - string
+          - 'null'
+          example: ethereum-erc20
+          description: network protocol of currency, null for internal deposit
+        to_address:
+          type:
+          - string
+          - 'null'
+          example: '0x5c7d23d516f120d322fc7b116386b7e491739138'
+          description: to_address/virtual account number, null for internal deposit
+        txid:
+          type:
+          - string
+          - 'null'
+          example: 0x8daa98e07886985bd6a142cd81b83582d6085f7eb931dc4984c18c84f2a845e0, null for internal deposit
+          description: unique transaction id
+        from:
+          type:
+          - string
+          - 'null'
+          example: pr***@***.com
+          description: from member in email, null for external deposit
+      required:
+      - sn
+      - is_internal
+      - currency
+      - amount
+      - state
+      - created_at
+      - network_protocol
+      - to_address
+      - txid
+      - from
+      description: External_V3_Entities_FundTransactions_Deposit model
+    External_V2_Entities_Errors_DepositBySnNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 2013
+              description: Error code
+            message:
+              type: string
+              example: Deposit##uuid=2305090002283160563 doesn't exist.
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: External_V2_Entities_Errors_DepositBySnNotFound model
+    postApiV3WalletMTransfer:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: unique composite currency id
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+          example: eth
+        amount:
+          type: string
+          description: transfer amount
+          example: '0.019'
+        side:
+          type: string
+          description: inbound or outbound transfers
+          enum:
+          - in
+          - out
+          example: in
+      required:
+      - currency
+      - amount
+      - side
+      description: make spot wallet <-> m wallet transfer
+    External_V3_Entities_BorrowingTransfer:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '210407080800050666'
+          description: serial number
+        side:
+          type: string
+          example: in
+          description: in or out
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960123
+          description: created timestamp (millisecond)
+        state:
+          type: string
+          example: processing
+          description: state, processing/failed/canceled/done
+      required:
+      - sn
+      - side
+      - currency
+      - amount
+      - created_at
+      - state
+      description: External_V3_Entities_BorrowingTransfer model
