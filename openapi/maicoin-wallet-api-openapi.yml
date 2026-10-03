@@ -858,106 +858,109 @@ paths:
       operationId: getApiV3DepositAddress
 components:
   schemas:
-    External_V3_Entities_ForcedLiquidation:
-      type: object
-      properties:
-        market:
-          type: string
-          example: ethusdt
-          description: market id
-        type:
-          type: string
-          example: buy
-          description: '''sell'' or ''buy'''
-        price:
-          type: string
-          example: '3200'
-          description: liquidation price
-        volume:
-          type: string
-          example: '0.1'
-          description: volume
-        fee:
-          type: string
-          example: '0.001'
-          description: fee
-        fee_currency:
-          type: string
-          example: eth
-          description: fee currency
-        repayment:
-          $ref: '#/components/schemas/External_V3_Entities_Repayment'
-      required:
-      - market
-      - type
-      - price
-      - volume
-      - fee
-      - fee_currency
-      - repayment
-    postApiV3WalletMLoan:
+    B2b_V2_Entities_PaymentAddress:
       type: object
       properties:
         currency:
           type: string
-          description: unique composite currency id
-          enum:
-          - twd
-          - btc
-          - eth
-          - usdt
-          example: eth
-        amount:
+          example: usdt
+          description: currency id
+        network_protocol:
           type: string
-          description: loan amount
-          example: '0.019'
+          example: tron-trc20
+          description: network protocol of currency
+        currency_version:
+          type: string
+          example: trc20usdt
+          description: currency version
+        address:
+          type:
+          - string
+          - 'null'
+          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
+          description: deposit address, nil when generating or deposit suspended
       required:
       - currency
-      - amount
-      description: submit loan
-    External_V3_Entities_LiquidationDetail:
+      - network_protocol
+      - currency_version
+      - address
+      description: B2b_V2_Entities_PaymentAddress model
+    External_V3_Entities_ManualRepayment:
       type: object
       properties:
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.15'
+          description: total repay amount
+        principal:
+          type: string
+          example: '0.1'
+          description: principal amount
+        interest:
+          type: string
+          example: '0.05'
+          description: interest amount
+        state:
+          type: string
+          example: confirmed
+          description: current state
         sn:
           type: string
           example: '210407080800050666'
           description: serial number
-        ad_ratio:
-          type: string
-          example: '1.2'
-          description: ad ratio before liquidation
-        expected_ad_ratio:
-          type: string
-          example: '1.5'
-          description: expected ad ratio after liquidation
         created_at:
           type: integer
           format: int32
-          example: 1521726960357
+          example: 1521726960123
           description: created timestamp (millisecond)
-        state:
-          type: string
-          example: liquidated
-          description: liquidation state, processing / liquidated
-        repayments:
-          type: array
-          items:
-            $ref: '#/components/schemas/External_V3_Entities_Repayment'
-          description: repay records
-        liquidations:
-          type: array
-          items:
-            $ref: '#/components/schemas/External_V3_Entities_ForcedLiquidation'
-          description: liquidation details
       required:
-      - sn
-      - ad_ratio
-      - expected_ad_ratio
-      - created_at
+      - currency
+      - amount
+      - principal
+      - interest
       - state
-      - repayments
-      - liquidations
-      description: External_V3_Entities_LiquidationDetail model
+      - sn
+      - created_at
+      description: External_V3_Entities_ManualRepayment model
+    External_V3_Entities_Account:
+      type: object
+      properties:
+        currency:
+          type: string
+          example: twd
+          description: currency id, e.g. twd, btc, ...
+        balance:
+          type: string
+          example: '100000.0'
+          description: available balance
+        locked:
+          type: string
+          example: '5566.0'
+          description: locked funds
+        staked:
+          type:
+          - string
+          - 'null'
+          example: '0.0'
+          description: staked funds
+        principal:
+          type: string
+          example: '0.1'
+          description: debt principal, only return this info when api requests with m-wallet
+        interest:
+          type: string
+          example: '0.001'
+          description: debt interest, only return this info when api requests with m-wallet
+      required:
+      - currency
+      - balance
+      - locked
+      - staked
+      description: External_V3_Entities_Account model
     External_V3_Entities_Liquidation:
       type: object
       properties:
@@ -989,6 +992,26 @@ components:
       - created_at
       - state
       description: External_V3_Entities_Liquidation model
+    External_V3_Entities_AdRatio:
+      type: object
+      properties:
+        ad_ratio:
+          type: string
+          example: '1.21'
+          description: ad ratio
+        asset_in_usdt:
+          type: string
+          example: '2639.98128484'
+          description: asset in usdt
+        debt_in_usdt:
+          type: string
+          example: '2165.54482641'
+          description: debt in usdt
+      required:
+      - ad_ratio
+      - asset_in_usdt
+      - debt_in_usdt
+      description: External_V3_Entities_AdRatio model
     postApiV3WalletMRepayment:
       type: object
       properties:
@@ -1009,35 +1032,6 @@ components:
       - currency
       - amount
       description: submit repayment
-    External_V3_Entities_Repayment:
-      type: object
-      properties:
-        currency:
-          type: string
-          example: eth
-          description: currency id
-        amount:
-          type: string
-          example: '0.15'
-          description: total repay amount
-        principal:
-          type: string
-          example: '0.1'
-          description: principal amount
-        interest:
-          type: string
-          example: '0.05'
-          description: interest amount
-        state:
-          type: string
-          example: confirmed
-          description: current state
-      required:
-      - currency
-      - amount
-      - principal
-      - interest
-      - state
     Shared_Entities_Errors_ResourceNotFound:
       type: object
       properties:
@@ -1095,69 +1089,106 @@ components:
       - success
       - error
       description: Shared_Entities_Error model
-    External_V3_Entities_Debt:
+    External_V3_Entities_ForcedLiquidation:
+      type: object
+      properties:
+        market:
+          type: string
+          example: ethusdt
+          description: market id
+        type:
+          type: string
+          example: buy
+          description: '''sell'' or ''buy'''
+        price:
+          type: string
+          example: '3200'
+          description: liquidation price
+        volume:
+          type: string
+          example: '0.1'
+          description: volume
+        fee:
+          type: string
+          example: '0.001'
+          description: fee
+        fee_currency:
+          type: string
+          example: eth
+          description: fee currency
+        repayment:
+          $ref: '#/components/schemas/External_V3_Entities_Repayment'
+      required:
+      - market
+      - type
+      - price
+      - volume
+      - fee
+      - fee_currency
+      - repayment
+    External_V3_Entities_LiquidationDetail:
       type: object
       properties:
         sn:
           type: string
           example: '210407080800050666'
           description: serial number
-        currency:
+        ad_ratio:
           type: string
-          example: eth
-          description: currency id
-        amount:
+          example: '1.2'
+          description: ad ratio before liquidation
+        expected_ad_ratio:
           type: string
-          example: '0.019'
-          description: transfer amount
-        state:
-          type: string
-          example: confirmed
-          description: current state
+          example: '1.5'
+          description: expected ad ratio after liquidation
         created_at:
           type: integer
           format: int32
           example: 1521726960357
           description: created timestamp (millisecond)
-        interest_rate:
+        state:
           type: string
-          example: '0.001'
-          description: interest rate
+          example: liquidated
+          description: liquidation state, processing / liquidated
+        repayments:
+          type: array
+          items:
+            $ref: '#/components/schemas/External_V3_Entities_Repayment'
+          description: repay records
+        liquidations:
+          type: array
+          items:
+            $ref: '#/components/schemas/External_V3_Entities_ForcedLiquidation'
+          description: liquidation details
       required:
       - sn
-      - currency
-      - amount
-      - state
+      - ad_ratio
+      - expected_ad_ratio
       - created_at
-      - interest_rate
-      description: External_V3_Entities_Debt model
-    B2b_V2_Entities_PaymentAddress:
+      - state
+      - repayments
+      - liquidations
+      description: External_V3_Entities_LiquidationDetail model
+    postApiV3WalletMLoan:
       type: object
       properties:
         currency:
           type: string
-          example: usdt
-          description: currency id
-        network_protocol:
+          description: unique composite currency id
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+          example: eth
+        amount:
           type: string
-          example: tron-trc20
-          description: network protocol of currency
-        currency_version:
-          type: string
-          example: trc20usdt
-          description: currency version
-        address:
-          type:
-          - string
-          - 'null'
-          example: TU91BoeyrqW9MKaiRPDiE6z7UecK2n2Hze
-          description: deposit address, nil when generating or deposit suspended
+          description: loan amount
+          example: '0.019'
       required:
       - currency
-      - network_protocol
-      - currency_version
-      - address
-      description: B2b_V2_Entities_PaymentAddress model
+      - amount
+      description: submit loan
     External_V3_Entities_FundSource:
       type: object
       properties:
@@ -1214,7 +1245,43 @@ components:
       - is_internal
       - network_congested
       description: External_V3_Entities_FundSource model
-    External_V3_Entities_ManualRepayment:
+    External_V3_Entities_Debt:
+      type: object
+      properties:
+        sn:
+          type: string
+          example: '210407080800050666'
+          description: serial number
+        currency:
+          type: string
+          example: eth
+          description: currency id
+        amount:
+          type: string
+          example: '0.019'
+          description: transfer amount
+        state:
+          type: string
+          example: confirmed
+          description: current state
+        created_at:
+          type: integer
+          format: int32
+          example: 1521726960357
+          description: created timestamp (millisecond)
+        interest_rate:
+          type: string
+          example: '0.001'
+          description: interest rate
+      required:
+      - sn
+      - currency
+      - amount
+      - state
+      - created_at
+      - interest_rate
+      description: External_V3_Entities_Debt model
+    External_V3_Entities_Repayment:
       type: object
       properties:
         currency:
@@ -1237,79 +1304,12 @@ components:
           type: string
           example: confirmed
           description: current state
-        sn:
-          type: string
-          example: '210407080800050666'
-          description: serial number
-        created_at:
-          type: integer
-          format: int32
-          example: 1521726960123
-          description: created timestamp (millisecond)
       required:
       - currency
       - amount
       - principal
       - interest
       - state
-      - sn
-      - created_at
-      description: External_V3_Entities_ManualRepayment model
-    External_V3_Entities_AdRatio:
-      type: object
-      properties:
-        ad_ratio:
-          type: string
-          example: '1.21'
-          description: ad ratio
-        asset_in_usdt:
-          type: string
-          example: '2639.98128484'
-          description: asset in usdt
-        debt_in_usdt:
-          type: string
-          example: '2165.54482641'
-          description: debt in usdt
-      required:
-      - ad_ratio
-      - asset_in_usdt
-      - debt_in_usdt
-      description: External_V3_Entities_AdRatio model
-    External_V3_Entities_Account:
-      type: object
-      properties:
-        currency:
-          type: string
-          example: twd
-          description: currency id, e.g. twd, btc, ...
-        balance:
-          type: string
-          example: '100000.0'
-          description: available balance
-        locked:
-          type: string
-          example: '5566.0'
-          description: locked funds
-        staked:
-          type:
-          - string
-          - 'null'
-          example: '0.0'
-          description: staked funds
-        principal:
-          type: string
-          example: '0.1'
-          description: debt principal, only return this info when api requests with m-wallet
-        interest:
-          type: string
-          example: '0.001'
-          description: debt interest, only return this info when api requests with m-wallet
-      required:
-      - currency
-      - balance
-      - locked
-      - staked
-      description: External_V3_Entities_Account model
     External_V3_Entities_Interest:
       type: object
       properties:

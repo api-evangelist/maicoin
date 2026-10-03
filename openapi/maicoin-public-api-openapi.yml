@@ -612,90 +612,71 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    External_V3_Entities_Market:
+    External_V3_Entities_Currency:
       type: object
       properties:
+        token_contract_address:
+          type:
+          - string
+          - 'null'
+          example: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+          description: contract address of currency
+        precision:
+          type: integer
+          format: int32
+          example: 8
+          description: fixed precision of the currency
         id:
           type: string
-          example: btctwd
-          description: unique market id, check /api/v3/markets for available markets
-        status:
+          example: trc20usdt
+          description: currency version, check /api/v3/currencies for available currency versions
+        network_protocol:
           type: string
-          example: active
-          description: market status
-        base_unit:
-          type: string
-          example: btc
-          description: base unit
-        base_unit_precision:
-          type: integer
-          format: int32
-          example: 5
-          description: fixed precision of base unit, can be negative, for example -3
-        min_base_amount:
-          type: number
-          format: float
-          example: 0.0015
-          description: minimum of base amount
-        quote_unit:
-          type: string
-          example: twd
-          description: quote unit
-        quote_unit_precision:
-          type: integer
-          format: int32
-          example: 1
-          description: fixed precision of quote unit
-        min_quote_amount:
-          type: number
-          format: float
-          example: 26.0
-          description: minimum of quote amount
-        m_wallet_supported:
+          example: tron-trc20
+          description: network protocol of currency
+        network_congested:
           type: boolean
           example: false
-          description: m wallet supported
-      required:
-      - id
-      - status
-      - base_unit
-      - base_unit_precision
-      - min_base_amount
-      - quote_unit
-      - quote_unit_precision
-      - min_quote_amount
-      - m_wallet_supported
-      description: External_V3_Entities_Market model
-    External_V3_Entities_HistoricalIndexPrice:
-      type: object
-      properties:
-        timestamp:
+          description: is network congested or not
+        deposit_confirmations:
           type: integer
           format: int32
-          example: 1644572610000
-          description: timestamp (millisecond)
-        price:
-          type: string
-          example: '43497.56666666'
-          description: index price
-      required:
-      - timestamp
-      - price
-      description: External_V3_Entities_HistoricalIndexPrice model
-    External_V3_Entities_Staking:
-      type: object
-      properties:
-        stake_flag:
+          example: 3
+          description: how many blocks need to be confirmed after deposit
+        withdrawal_fee:
+          type: number
+          format: float
+          example: 0.0005
+          description: withdrawal fee of the currency
+        min_withdrawal_amount:
+          type: number
+          format: float
+          example: 0.001
+          description: minimum withdrawal amount
+        withdrawal_enabled:
           type: boolean
           example: true
-          description: stake flag
-        unstake_flag:
+          description: if enable withdrawal
+        deposit_enabled:
+          type: boolean
+          example: true
+          description: if enable deposit
+        need_memo:
           type: boolean
           example: false
-          description: unstake flag
+          description: if currency address need memo or tag
       required:
-      - stake_flag
-      - unstake_flag
+      - token_contract_address
+      - precision
+      - id
+      - network_protocol
+      - network_congested
+      - deposit_confirmations
+      - withdrawal_fee
+      - min_withdrawal_amount
+      - withdrawal_enabled
+      - deposit_enabled
+      - need_memo
     External_V3_Entities_Ticker:
       type: object
       properties:
@@ -767,6 +748,36 @@ components:
       - vol_in_btc
       - vol_in_quote
       description: External_V3_Entities_Ticker model
+    External_V3_Entities_Staking:
+      type: object
+      properties:
+        stake_flag:
+          type: boolean
+          example: true
+          description: stake flag
+        unstake_flag:
+          type: boolean
+          example: false
+          description: unstake flag
+      required:
+      - stake_flag
+      - unstake_flag
+    External_V3_Entities_HistoricalIndexPrice:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+          example: 1644572610000
+          description: timestamp (millisecond)
+        price:
+          type: string
+          example: '43497.56666666'
+          description: index price
+      required:
+      - timestamp
+      - price
+      description: External_V3_Entities_HistoricalIndexPrice model
     External_V3_Entities_PublicTrade:
       type: object
       properties:
@@ -809,71 +820,60 @@ components:
       - side
       - created_at
       description: External_V3_Entities_PublicTrade model
-    External_V3_Entities_Currency:
+    External_V3_Entities_Market:
       type: object
       properties:
-        token_contract_address:
-          type:
-          - string
-          - 'null'
-          example: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
-          description: contract address of currency
-        precision:
-          type: integer
-          format: int32
-          example: 8
-          description: fixed precision of the currency
         id:
           type: string
-          example: trc20usdt
-          description: currency version, check /api/v3/currencies for available currency versions
-        network_protocol:
+          example: btctwd
+          description: unique market id, check /api/v3/markets for available markets
+        status:
           type: string
-          example: tron-trc20
-          description: network protocol of currency
-        network_congested:
-          type: boolean
-          example: false
-          description: is network congested or not
-        deposit_confirmations:
+          example: active
+          description: market status
+        base_unit:
+          type: string
+          example: btc
+          description: base unit
+        base_unit_precision:
           type: integer
           format: int32
-          example: 3
-          description: how many blocks need to be confirmed after deposit
-        withdrawal_fee:
+          example: 5
+          description: fixed precision of base unit, can be negative, for example -3
+        min_base_amount:
           type: number
           format: float
-          example: 0.0005
-          description: withdrawal fee of the currency
-        min_withdrawal_amount:
+          example: 0.0015
+          description: minimum of base amount
+        quote_unit:
+          type: string
+          example: twd
+          description: quote unit
+        quote_unit_precision:
+          type: integer
+          format: int32
+          example: 1
+          description: fixed precision of quote unit
+        min_quote_amount:
           type: number
           format: float
-          example: 0.001
-          description: minimum withdrawal amount
-        withdrawal_enabled:
-          type: boolean
-          example: true
-          description: if enable withdrawal
-        deposit_enabled:
-          type: boolean
-          example: true
-          description: if enable deposit
-        need_memo:
+          example: 26.0
+          description: minimum of quote amount
+        m_wallet_supported:
           type: boolean
           example: false
-          description: if currency address need memo or tag
+          description: m wallet supported
       required:
-      - token_contract_address
-      - precision
       - id
-      - network_protocol
-      - network_congested
-      - deposit_confirmations
-      - withdrawal_fee
-      - min_withdrawal_amount
-      - withdrawal_enabled
-      - deposit_enabled
-      - need_memo
+      - status
+      - base_unit
+      - base_unit_precision
+      - min_base_amount
+      - quote_unit
+      - quote_unit_precision
+      - min_quote_amount
+      - m_wallet_supported
+      description: External_V3_Entities_Market model
     External_V3_Entities_Timestamp:
       type: object
       properties:

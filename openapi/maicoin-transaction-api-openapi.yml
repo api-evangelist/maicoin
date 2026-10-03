@@ -1326,6 +1326,70 @@ paths:
       x-summary-source: derived
 components:
   schemas:
+    External_V2_Entities_Errors_DepositBySnNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 2013
+              description: Error code
+            message:
+              type: string
+              example: Deposit##uuid=2305090002283160563 doesn't exist.
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: External_V2_Entities_Errors_DepositBySnNotFound model
+    postApiV3WalletMTransfer:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: unique composite currency id
+          enum:
+          - twd
+          - btc
+          - eth
+          - usdt
+          example: eth
+        amount:
+          type: string
+          description: transfer amount
+          example: '0.019'
+        side:
+          type: string
+          description: inbound or outbound transfers
+          enum:
+          - in
+          - out
+          example: in
+      required:
+      - currency
+      - amount
+      - side
+      description: make spot wallet <-> m wallet transfer
+    postApiV3WithdrawalTwd:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: withdraw amount
+          example: '100'
+      required:
+      - amount
+      description: Submit twd withdrawal to verified bank account. IP whitelist for api token is required.
     External_V3_Entities_FundTransactions_Withdrawal:
       type: object
       properties:
@@ -1411,6 +1475,32 @@ components:
       - txid
       - to
       description: External_V3_Entities_FundTransactions_Withdrawal model
+    External_V2_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 4000
+              description: Error code
+            message:
+              type: string
+              example: Resource not found
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: External_V2_Entities_Errors_ResourceNotFound model
     External_V3_Entities_InternalTransfers_Transfer:
       type: object
       properties:
@@ -1452,6 +1542,47 @@ components:
       - to
       - state
       description: External_V3_Entities_InternalTransfers_Transfer model
+    Shared_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 404
+              description: Error code
+            message:
+              type: string
+              example: 找不到該資源
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_ResourceNotFound model
+    postApiV3Withdrawal:
+      type: object
+      properties:
+        withdraw_address_uuid:
+          type: string
+          description: unique withdraw address id, check GET /api/v3/withdraw_addresses for available withdraw addresses
+          example: 508c9af6-ccc1-4122-b38f-a407e3bac96c
+        amount:
+          type: string
+          description: withdraw amount
+          example: '0.019'
+      required:
+      - withdraw_address_uuid
+      - amount
+      description: Submit a crypto withdrawal. IP whitelist for api token is required.
     External_V3_Entities_Withdrawal:
       type: object
       properties:
@@ -1520,94 +1651,6 @@ components:
       - state
       - transaction_type
       description: External_V3_Entities_Withdrawal model
-    postApiV3WithdrawalTwd:
-      type: object
-      properties:
-        amount:
-          type: string
-          description: withdraw amount
-          example: '100'
-      required:
-      - amount
-      description: Submit twd withdrawal to verified bank account. IP whitelist for api token is required.
-    Shared_Entities_Errors_ResourceNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 404
-              description: Error code
-            message:
-              type: string
-              example: 找不到該資源
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_ResourceNotFound model
-    Shared_Entities_Errors_Creation:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 4002
-              description: Error code
-            message:
-              type: string
-              example: You don't have permission to perform this operation, please upgrade your account.
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_Creation model
-    External_V2_Entities_Errors_ResourceNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 4000
-              description: Error code
-            message:
-              type: string
-              example: Resource not found
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: External_V2_Entities_Errors_ResourceNotFound model
     External_V3_Entities_FundTransactions_Transfer:
       type: object
       properties:
@@ -1649,21 +1692,6 @@ components:
       - from
       - to
       description: External_V3_Entities_FundTransactions_Transfer model
-    postApiV3Withdrawal:
-      type: object
-      properties:
-        withdraw_address_uuid:
-          type: string
-          description: unique withdraw address id, check GET /api/v3/withdraw_addresses for available withdraw addresses
-          example: 508c9af6-ccc1-4122-b38f-a407e3bac96c
-        amount:
-          type: string
-          description: withdraw amount
-          example: '0.019'
-      required:
-      - withdraw_address_uuid
-      - amount
-      description: Submit a crypto withdrawal. IP whitelist for api token is required.
     External_V3_Entities_InternalTransfers_Reward:
       type: object
       properties:
@@ -1757,71 +1785,42 @@ components:
       - state
       - state_reason
       description: External_V3_Entities_Deposit model
-    External_V3_Entities_FundTransactions_Source:
-      type: object
-      properties:
-        platform:
-          type: string
-          example: max
-          description: source platform
-        sn:
-          type: string
-          example: s1-example
-          description: source account serial number
-        wallet_type:
-          type: string
-          example: m
-          description: spot wallet or m-wallet
-      required:
-      - platform
-      - sn
-      - wallet_type
-    External_V3_Entities_FundTransactions_Reward:
+    External_V3_Entities_BorrowingTransfer:
       type: object
       properties:
         sn:
           type: string
-          example: '18022603540001'
-          description: unique reward id
+          example: '210407080800050666'
+          description: serial number
+        side:
+          type: string
+          example: in
+          description: in or out
         currency:
           type: string
-          example: usdt
+          example: eth
           description: currency id
         amount:
           type: string
           example: '0.019'
-          description: reward amount
-        state:
-          type: string
-          example: processing
-          description: reward state, processing/failed/canceled/done
+          description: transfer amount
         created_at:
           type: integer
           format: int32
           example: 1521726960123
           description: created timestamp (millisecond)
-        type:
+        state:
           type: string
-          example: airdrop_reward
-          description: reward type
-        note:
-          type: string
-          example: 2018-11-13 Holding Reward
-          description: reward description
-        to_sn:
-          type: string
-          example: s1-example
-          description: reward sub account serial number
+          example: processing
+          description: state, processing/failed/canceled/done
       required:
       - sn
+      - side
       - currency
       - amount
-      - state
       - created_at
-      - type
-      - note
-      - to_sn
-      description: External_V3_Entities_FundTransactions_Reward model
+      - state
+      description: External_V3_Entities_BorrowingTransfer model
     External_V3_Entities_FundTransactions_Deposit:
       type: object
       properties:
@@ -1886,7 +1885,26 @@ components:
       - txid
       - from
       description: External_V3_Entities_FundTransactions_Deposit model
-    External_V2_Entities_Errors_DepositBySnNotFound:
+    External_V3_Entities_FundTransactions_Source:
+      type: object
+      properties:
+        platform:
+          type: string
+          example: max
+          description: source platform
+        sn:
+          type: string
+          example: s1-example
+          description: source account serial number
+        wallet_type:
+          type: string
+          example: m
+          description: spot wallet or m-wallet
+      required:
+      - platform
+      - sn
+      - wallet_type
+    Shared_Entities_Errors_Creation:
       type: object
       properties:
         success:
@@ -1899,11 +1917,11 @@ components:
             code:
               type: integer
               format: int32
-              example: 2013
+              example: 4002
               description: Error code
             message:
               type: string
-              example: Deposit##uuid=2305090002283160563 doesn't exist.
+              example: You don't have permission to perform this operation, please upgrade your account.
               description: Error message
           required:
           - code
@@ -1911,68 +1929,50 @@ components:
       required:
       - success
       - error
-      description: External_V2_Entities_Errors_DepositBySnNotFound model
-    postApiV3WalletMTransfer:
-      type: object
-      properties:
-        currency:
-          type: string
-          description: unique composite currency id
-          enum:
-          - twd
-          - btc
-          - eth
-          - usdt
-          example: eth
-        amount:
-          type: string
-          description: transfer amount
-          example: '0.019'
-        side:
-          type: string
-          description: inbound or outbound transfers
-          enum:
-          - in
-          - out
-          example: in
-      required:
-      - currency
-      - amount
-      - side
-      description: make spot wallet <-> m wallet transfer
-    External_V3_Entities_BorrowingTransfer:
+      description: Shared_Entities_Errors_Creation model
+    External_V3_Entities_FundTransactions_Reward:
       type: object
       properties:
         sn:
           type: string
-          example: '210407080800050666'
-          description: serial number
-        side:
-          type: string
-          example: in
-          description: in or out
+          example: '18022603540001'
+          description: unique reward id
         currency:
           type: string
-          example: eth
+          example: usdt
           description: currency id
         amount:
           type: string
           example: '0.019'
-          description: transfer amount
+          description: reward amount
+        state:
+          type: string
+          example: processing
+          description: reward state, processing/failed/canceled/done
         created_at:
           type: integer
           format: int32
           example: 1521726960123
           description: created timestamp (millisecond)
-        state:
+        type:
           type: string
-          example: processing
-          description: state, processing/failed/canceled/done
+          example: airdrop_reward
+          description: reward type
+        note:
+          type: string
+          example: 2018-11-13 Holding Reward
+          description: reward description
+        to_sn:
+          type: string
+          example: s1-example
+          description: reward sub account serial number
       required:
       - sn
-      - side
       - currency
       - amount
-      - created_at
       - state
-      description: External_V3_Entities_BorrowingTransfer model
+      - created_at
+      - type
+      - note
+      - to_sn
+      description: External_V3_Entities_FundTransactions_Reward model

@@ -724,16 +724,21 @@ paths:
         required: true
 components:
   schemas:
-    Shared_Entities_Success:
+    External_V3_Entities_MultiOrder:
       type: object
       properties:
-        success:
-          type: boolean
-          example: true
-          description: success or not
+        error:
+          type: string
+          example: 'Validation failed: Volume must be greater than 0'
+          description: the failure reason of placing order
+        order:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_Order'
+          description: the result when place order successfully
       required:
-      - success
-      description: Shared_Entities_Success model
+      - error
+      - order
+      description: External_V3_Entities_MultiOrder model
     postApiV3WalletPathWalletTypeOrder:
       type: object
       properties:
@@ -1066,18 +1071,13 @@ components:
       - created_at
       - updated_at
       description: External_V3_Entities_Order model
-    External_V3_Entities_MultiOrder:
+    Shared_Entities_Success:
       type: object
       properties:
-        error:
-          type: string
-          example: 'Validation failed: Volume must be greater than 0'
-          description: the failure reason of placing order
-        order:
-          allOf:
-          - $ref: '#/components/schemas/External_V3_Entities_Order'
-          description: the result when place order successfully
+        success:
+          type: boolean
+          example: true
+          description: success or not
       required:
-      - error
-      - order
-      description: External_V3_Entities_MultiOrder model
+      - success
+      description: Shared_Entities_Success model
