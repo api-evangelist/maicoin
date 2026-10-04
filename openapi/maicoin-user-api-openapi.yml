@@ -92,36 +92,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    External_V3_Entities_Info:
-      type: object
-      properties:
-        email:
-          type: string
-          example: max@maicoin.com
-          description: user email
-        level:
-          type: integer
-          format: int32
-          example: 0
-          description: user level
-        m_wallet_enabled:
-          type: boolean
-          example: true
-          description: if enable m-wallet
-        current_vip_level:
-          allOf:
-          - $ref: '#/components/schemas/External_V3_Entities_VipLevel'
-          description: current vip level
-        next_vip_level:
-          allOf:
-          - $ref: '#/components/schemas/External_V3_Entities_VipLevel'
-          description: next vip level
-      required:
-      - email
-      - level
-      - current_vip_level
-      - next_vip_level
-      description: External_V3_Entities_Info model
     External_V3_Entities_VipLevel:
       type: object
       properties:
@@ -156,3 +126,33 @@ components:
       - minimum_staking_volume
       - maker_fee
       - taker_fee
+    External_V3_Entities_Info:
+      type: object
+      properties:
+        email:
+          type: string
+          example: max@maicoin.com
+          description: user email
+        level:
+          type: integer
+          format: int32
+          example: 0
+          description: user level
+        m_wallet_enabled:
+          type: boolean
+          example: true
+          description: if enable m-wallet
+        current_vip_level:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_VipLevel'
+          description: current vip level
+        next_vip_level:
+          allOf:
+          - $ref: '#/components/schemas/External_V3_Entities_VipLevel'
+          description: next vip level
+      required:
+      - email
+      - level
+      - current_vip_level
+      - next_vip_level
+      description: External_V3_Entities_Info model

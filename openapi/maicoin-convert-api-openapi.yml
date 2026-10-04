@@ -220,6 +220,32 @@ paths:
       x-summary-source: derived
 components:
   schemas:
+    Shared_Entities_Errors_ResourceNotFound:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 404
+              description: Error code
+            message:
+              type: string
+              example: 找不到該資源
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_ResourceNotFound model
     postApiV3Convert:
       type: object
       properties:
@@ -351,32 +377,6 @@ components:
       - from_currency
       - to_currency
       description: Execute a convert (flash exchange) between two currencies
-    Shared_Entities_Errors_ResourceNotFound:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 404
-              description: Error code
-            message:
-              type: string
-              example: 找不到該資源
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_ResourceNotFound model
     Shared_Entities_Error:
       type: object
       properties:
@@ -408,32 +408,6 @@ components:
       - success
       - error
       description: Shared_Entities_Error model
-    Shared_Entities_Errors_Creation:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-          description: response success?
-        error:
-          type: object
-          properties:
-            code:
-              type: integer
-              format: int32
-              example: 4002
-              description: Error code
-            message:
-              type: string
-              example: You don't have permission to perform this operation, please upgrade your account.
-              description: Error message
-          required:
-          - code
-          - message
-      required:
-      - success
-      - error
-      description: Shared_Entities_Errors_Creation model
     External_V3_Entities_ConvertOrder:
       type: object
       properties:
@@ -485,3 +459,29 @@ components:
       - fee_in_twd
       - created_at
       description: External_V3_Entities_ConvertOrder model
+    Shared_Entities_Errors_Creation:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: response success?
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+              example: 4002
+              description: Error code
+            message:
+              type: string
+              example: You don't have permission to perform this operation, please upgrade your account.
+              description: Error message
+          required:
+          - code
+          - message
+      required:
+      - success
+      - error
+      description: Shared_Entities_Errors_Creation model
