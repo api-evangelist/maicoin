@@ -41,7 +41,7 @@ x-type: company
 x-source: harvest:secondary-market
 specificationVersion: '0.20'
 created: '2026-08-25'
-modified: '2026-08-25'
+modified: '2026-10-06'
 tags:
 - Company
 - Cryptocurrency
@@ -210,6 +210,8 @@ apis:
   - type: APIReference
     url: https://max-api.maicoin.com/doc/v3.html
 common:
+- url: https://blog.maicoin.com/feed/
+  type: BlogRSS
 - type: CapabilityMap
   url: capabilities/maicoin-capability-edges.yml
   name: MaiCoin Business Capability Map
