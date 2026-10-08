@@ -97,3 +97,80 @@ plans:
   maker_fee_percent: -0.008
   taker_fee_percent: 0.045
   note: Negative maker fee — a rebate. MaiCoin's page states VIP9 "can earn 0.8 bps for trades".
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  units: []
+  plans:
+  - name: VIP0
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP1
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP2
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP3
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP4
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP5
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP6
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP7
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP8
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
+  - name: VIP9
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods:
+    - none
